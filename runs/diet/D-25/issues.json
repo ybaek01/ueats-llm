@@ -1,0 +1,23 @@
+{
+  "persona": {
+    "id": "D-25",
+    "condition": "diet",
+    "age": 19,
+    "income_bracket": "scholarship stipend",
+    "location": "Rochester, NY",
+    "diet": "salt-free",
+    "accessibility": "none",
+    "goal": "No added salt"
+  },
+  "run": {
+    "history": [
+      {
+        "action": "wait",
+        "selector": "",
+        "text": "",
+        "ms": 1000
+      }
+    ]
+  },
+  "analysis": "# Persona Report\n\n### Persona Name\nD-25\n\n### Critical Issues\n- **Dietary Restrictions**: The persona follows a strict salt-free diet, which can limit food options and complicate meal planning.\n- **Accessibility**: There is no access to resources or support for maintaining a salt-free diet, making it challenging to find suitable food options.\n\n### Minor Friction\n- **Income Constraints**: As a scholarship stipend recipient, budget limitations may hinder the ability to purchase specialty foods that align with dietary needs.\n- **Location Limitations**: Living in Rochester, NY, may restrict access to stores or restaurants that offer salt-free options.\n\n### Suggested Improvements\n- **Resource Access**: Establish local support groups or online communities focused on salt-free diets to share recipes and resources.\n- **Grocery Partnerships**: Collaborate with local grocery stores to create a dedicated section for salt-free products, making it easier for individuals to find suitable options.\n- **Educational Workshops**: Offer workshops on meal prep and cooking techniques for salt-free diets to empower individuals to manage their dietary needs effectively."
+}

@@ -1,0 +1,23 @@
+{
+  "persona": {
+    "id": "D-11",
+    "condition": "diet",
+    "age": 29,
+    "income_bracket": "part-time job 5k",
+    "location": "Durham, NC",
+    "diet": "paleo",
+    "accessibility": "none",
+    "goal": "Whole-food wings"
+  },
+  "run": {
+    "history": [
+      {
+        "action": "wait",
+        "selector": "",
+        "text": "",
+        "ms": 1000
+      }
+    ]
+  },
+  "analysis": "# Persona Report\n\n### Persona Name\nD-11\n\n### Critical Issues\n- **Dietary Restrictions**: As a follower of the paleo diet, D-11 faces challenges in finding suitable whole-food options, particularly for specific cravings like wings.\n- **Income Limitations**: With a part-time income of $5,000, D-11 may struggle to afford premium paleo ingredients or dining options.\n\n### Minor Friction\n- **Accessibility**: D-11 has no reported accessibility issues, but the limited availability of paleo-friendly restaurants in Durham may hinder dining out experiences.\n- **Time Constraints**: The persona may experience delays in meal preparation due to the complexity of paleo recipes, leading to frustration.\n\n### Suggested Improvements\n- **Recipe Resources**: Provide easy-to-follow paleo wing recipes that utilize accessible ingredients, catering to D-11's budget.\n- **Local Guides**: Create a guide to local grocery stores and restaurants that offer paleo options, enhancing D-11's dining experience.\n- **Meal Prep Services**: Consider partnerships with meal prep services that specialize in paleo diets, making it easier for D-11 to access convenient meal solutions."
+}
