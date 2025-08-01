@@ -1,0 +1,23 @@
+{
+  "persona": {
+    "id": "U-20",
+    "condition": "uniform",
+    "age": 20,
+    "income_bracket": "part-time job 4k",
+    "location": "Trenton, NJ",
+    "diet": "none",
+    "accessibility": "none",
+    "goal": "Budget lunch between labs"
+  },
+  "run": {
+    "history": [
+      {
+        "action": "wait",
+        "selector": "",
+        "text": "",
+        "ms": 1000
+      }
+    ]
+  },
+  "analysis": "# Persona Report\n\n**Persona Name:** U-20\n\n## Critical Issues\n- **Budget Constraints:** With a part-time income of $4,000, finding affordable lunch options between labs is a significant challenge.\n- **Time Management:** Limited time between classes may lead to rushed meal choices, impacting nutrition and satisfaction.\n\n## Minor Friction\n- **Lack of Variety:** Limited options for budget-friendly meals can lead to monotony in lunch choices.\n- **Accessibility:** Potential barriers in accessing nearby food outlets that offer healthy and affordable meals.\n\n## Suggested Improvements\n- **Meal Prep Options:** Encourage meal prepping to save time and money, providing easy-to-follow recipes that fit a student budget.\n- **Local Partnerships:** Collaborate with local eateries to offer student discounts or meal deals specifically for those on a budget.\n- **Mobile App for Meal Planning:** Develop an app that helps students find affordable meal options nearby, including nutritional information and pricing.\n\nBy addressing these issues, U-20 can achieve a more balanced and satisfying lunch experience while managing their budget effectively."
+}

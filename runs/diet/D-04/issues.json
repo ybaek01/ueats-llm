@@ -1,0 +1,23 @@
+{
+  "persona": {
+    "id": "D-04",
+    "condition": "diet",
+    "age": 24,
+    "income_bracket": "intern stipend 8k",
+    "location": "New York, NY",
+    "diet": "keto",
+    "accessibility": "none",
+    "goal": "Low-carb meal"
+  },
+  "run": {
+    "history": [
+      {
+        "action": "wait",
+        "selector": "",
+        "text": "",
+        "ms": 1000
+      }
+    ]
+  },
+  "analysis": "# Persona Report\n\n**Persona Name:** Diet-Conscious Intern\n\n**Critical Issues:**\n- Limited budget (intern stipend of $8,000) restricts access to quality low-carb ingredients.\n- Difficulty finding affordable keto meal options in New York, leading to potential dietary non-compliance.\n\n**Minor Friction:**\n- Lack of accessibility to keto-friendly grocery stores or meal prep services in the area.\n- Time constraints due to internship responsibilities make meal planning and preparation challenging.\n\n**Suggested Improvements:**\n- Develop a budget-friendly meal plan that highlights affordable keto recipes using easily accessible ingredients.\n- Create partnerships with local grocery stores to offer discounts on keto products for interns or students.\n- Introduce a meal prep service tailored for low-carb diets that accommodates busy schedules, possibly with a subscription model to reduce costs.\n\nBy addressing these issues, the intern can better adhere to their dietary goals while managing their financial and time constraints."
+}
