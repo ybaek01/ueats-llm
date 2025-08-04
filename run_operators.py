@@ -1,8 +1,8 @@
 """
-Uber Eats 시뮬레이션 - LLM v1 API 호환판
+Uber Eats Simulation - LLM v1 API
 pip install "openai>=1.0.0" playwright rapidfuzz
 playwright install
-환경변수:  OPENAI_API_KEY
+Environment Variable:  OPENAI_API_KEY
 """
 
 import argparse, asyncio, json, os, pathlib

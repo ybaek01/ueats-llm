@@ -1,6 +1,6 @@
 """
-runs/ 하위의 모든 issues.json 파일을 모아
-consolidated_report.pdf 를 만든다.
+runs/ gather issues.json files
+Compose consolidated_report.pdf
 """
 import argparse, json, os, pathlib, subprocess, tempfile, re
 from jinja2 import Template

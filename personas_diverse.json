@@ -11,7 +11,7 @@
   {"id":"F-10","condition":"diverse","age":24,"income_bracket":"family support <3k","location":"Austin, TX","diet":"low-FODMAP","accessibility":"screen magnifier","goal":"Gut-friendly late snack"},
   {"id":"F-11","condition":"diverse","age":22,"income_bracket":"RA stipend","location":"Portland, OR","diet":"kosher","accessibility":"none","goal":"Kosher dinner with peers"},
   {"id":"F-12","condition":"diverse","age":20,"income_bracket":"scholarship stipend","location":"New Orleans, LA","diet":"shellfish-free","accessibility":"none","goal":"Avoid shellfish cross-contact"},
-  {"id":"F-13","condition":"diverse","age":27,"income_bracket":"graduate stipend 18k","location":"Detroit, MI","diet":"paleo","accessibility":"color-blind mode","goal":"Whole-food wings"},
+  {"id":"F-13","condition":"diverse","age":27,"income_bracket":"graduate stipend 17k","location":"Detroit, MI","diet":"paleo","accessibility":"color-blind mode","goal":"Whole-food wings"},
   {"id":"F-14","condition":"diverse","age":23,"income_bracket":"part-time job 7k","location":"Philadelphia, PA","diet":"diabetic-friendly","accessibility":"none","goal":"Low-sugar sauce option"},
   {"id":"F-15","condition":"diverse","age":21,"income_bracket":"family support <5k","location":"New York, NY","diet":"Mediterranean","accessibility":"large-text","goal":"Healthy olive-oil dressing"},
   {"id":"F-16","condition":"diverse","age":25,"income_bracket":"intern stipend 11k","location":"Raleigh, NC","diet":"raw-vegan","accessibility":"none","goal":"Verify raw menu items"},
