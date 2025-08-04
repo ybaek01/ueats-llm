@@ -11,7 +11,7 @@ If you guys have any issues, message me.
 
 
 ** Since we are using openAI tokens, it costs. Probably less than $ 1 per one simulation. **
-Playwright is free, also jinja2.
+Playwright is free, also a jinja2.
 
 I have credit on openAI, so it does not matter.
 

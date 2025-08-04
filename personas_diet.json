@@ -16,7 +16,7 @@
   {"id":"D-15","condition":"diet","age":26,"income_bracket":"intern stipend 9k","location":"Norfolk, VA","diet":"diabetic-friendly","accessibility":"none","goal":"Low-sugar sauce"},
   {"id":"D-16","condition":"diet","age":19,"income_bracket":"no personal income","location":"Columbia, SC","diet":"egg-allergy","accessibility":"none","goal":"Avoid egg ingredients"},
   {"id":"D-17","condition":"diet","age":20,"income_bracket":"part-time job 4k","location":"Hartford, CT","diet":"seafood-allergy","accessibility":"none","goal":"No fish cross-contact"},
-  {"id":"D-18","condition":"diet","age":30,"income_bracket":"graduate stipend 15k","location":"Albany, NY","diet":"shellfish-free","accessibility":"none","goal":"Shellfish-free wings"},
+  {"id":"D-18","condition":"diet","age":30,"income_bracket":"graduate stipend 13k","location":"Albany, NY","diet":"shellfish-free","accessibility":"none","goal":"Shellfish-free wings"},
   {"id":"D-19","condition":"diet","age":24,"income_bracket":"intern stipend 8k","location":"Worcester, MA","diet":"soy-free","accessibility":"none","goal":"Soy-free sauce"},
   {"id":"D-20","condition":"diet","age":25,"income_bracket":"part-time job 6k","location":"Trenton, NJ","diet":"corn-allergy","accessibility":"none","goal":"Corn-free dressing"},
   {"id":"D-21","condition":"diet","age":27,"income_bracket":"family support <3k","location":"Portland, ME","diet":"peanut-free","accessibility":"none","goal":"Avoid peanut oil"},

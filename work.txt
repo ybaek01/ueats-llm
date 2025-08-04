@@ -5,8 +5,6 @@ code .
 
 ~/Documents/ueats-llm/venv/bin/python
 
-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
-
 echo $OPENAI_API_KEY
 
 deactivate
