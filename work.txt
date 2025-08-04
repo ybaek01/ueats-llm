@@ -9,6 +9,7 @@ echo $OPENAI_API_KEY
 
 deactivate
 
+
 1) Uniform
 python run_operators.py --personas personas_uniform.json --output runs/uniform
 2) Diet-only
