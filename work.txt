@@ -1,0 +1,25 @@
+
+cd ~/Documents/ueats-llm
+source venv/bin/activate
+code .
+
+~/Documents/ueats-llm/venv/bin/python
+
+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
+
+echo $OPENAI_API_KEY
+
+deactivate
+
+1) Uniform
+python run_operators.py --personas personas_uniform.json --output runs/uniform
+2) Diet-only
+python run_operators.py --personas personas_diet.json --output runs/diet
+3) Fully-diverse
+python run_operators.py --personas personas_diverse.json --output runs/diverse
+4) PDF 통합
+python compose_report.py --input runs --pdf consolidated_report.pdf
+
+
+Everyone get same pdf file -> 
+
