@@ -27,11 +27,9 @@ ueats-llm/<br>
 4. Stop at checkout or on error
 5. Save 'issues.md & issues.json' under 'runs/condition/id/'
 
-
 # compose_report.py
 1. Recursively scan runs/ for issues.json, renders a single HTML summary with Jinja2
 2. Convert it to PDf using wkhtmltopdf
-
 
 # One-Time Setup
 1. Xcode CLI tools<br>
