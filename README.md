@@ -57,7 +57,6 @@ source ~/.zshrc
 6. VS Code Extensions<br>
 Python & Playwright Test
 
-
 # Quick Start
 ```
 # Clone & create a virtual environment (Python 3.11+)
