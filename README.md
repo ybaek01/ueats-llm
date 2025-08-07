@@ -1,5 +1,8 @@
-# Usability-Testing-2
+# Persona Diversity Simulation
 Persona Diversity: Comparing Usability-Testing Outcomes across Heterogeneous Personas
+
+A lightweight pipeline that combines Playwright, OpenAI GPT-4o-mini, and JSON persona files to simulate end-to-end food-ordering sessions on the Uber Eats **mobile-web** site.  
+Each simulated run produces a short heuristic-style usability report; all runs can be merged into a single, nicely-formatted PDF for human review.
 
 Personas: https://docs.google.com/document/d/1wij_WsHuOH8qoIgsOV3bVFR5y1cv7_NlM5Ua6FRjeUQ/edit?usp=sharing
 
@@ -18,7 +21,7 @@ ueats-llm/<br>
 └─ venv/                 ← virtual env<br>
 
 # run_operators.py
-1. Open "https://www.ubereats.com" in an iPhone 15 viewport
+1. Open "https://www.ubereats.com" in an iPhone 15 viewport (393×852 px)
 2. Feed the page's trimmed DOM (<= 4,000 chars) to GPT-4o-mini along with the active persona
 3. Execute the JSON command returned by the model (click, type, wait)
 4. Stop at checkout or on error
@@ -76,14 +79,14 @@ export OPENAI_API_KEY="sk-XXXXXXXXXXXXX"
 source venv/bin/activate<br>
 code .<br>
 
-1) Uniform
+1) Uniform<br>
 python run_operators.py --personas personas_uniform.json --output runs/uniform
 
-2) Diet-only
+2) Diet-only<br>
 python run_operators.py --personas personas_diet.json --output runs/diet
 
-3) Fully-diverse
+3) Fully-diverse<br>
 python run_operators.py --personas personas_diverse.json --output runs/diverse
 
-4) Merge PDF
+4) Merge PDF<br>
 python compose_report.py --input runs --pdf consolidated_report.pdf
