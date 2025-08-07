@@ -31,6 +31,22 @@ ueats-llm/<br>
 1. Recursively scan runs/ for issues.json, renders a single HTML summary with Jinja2
 2. Convert it to PDf using wkhtmltopdf
 
+# Quick Start
+```
+# Clone & create a virtual environment (Python 3.11+)
+git clone https://github.com/ybaek01/ueats-llm.git
+cd ueats-llm
+python3.11 -m venv venv && source venv/bin/activate
+pip install -U pip
+pip install openai playwright pandas rapidfuzz jinja2
+
+# One-time Playwright browser download
+playwright install chromium
+
+# Add your OpenAI Key
+export OPENAI_API_KEY="sk-XXXXXXXXXXXXX"
+```
+
 # One-Time Setup
 1. Xcode CLI tools<br>
 xcode-select --install
@@ -56,22 +72,6 @@ source ~/.zshrc
 
 6. VS Code Extensions<br>
 Python & Playwright Test
-
-# Quick Start
-```
-# Clone & create a virtual environment (Python 3.11+)
-git clone https://github.com/ybaek01/ueats-llm.git
-cd ueats-llm
-python3.11 -m venv venv && source venv/bin/activate
-pip install -U pip
-pip install openai playwright pandas rapidfuzz jinja2
-
-# One-time Playwright browser download
-playwright install chromium
-
-# Add your OpenAI Key
-export OPENAI_API_KEY="sk-XXXXXXXXXXXXX"
-```
 
 # Running the Pipeline in terminal
 0) cd ~/ueats-llm<br>
