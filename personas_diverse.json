@@ -1,9 +1,0 @@
-[
-  {"id":"F-01","condition":"diverse","age":19,"income_bracket":"no personal income","location":"Seattle, WA","diet":"vegan","accessibility":"screen reader","goal":"Accessible plant-based dinner"},
-  {"id":"F-02","condition":"diverse","age":24,"income_bracket":"part-time job 6k","location":"San Jose, CA","diet":"gluten-free","accessibility":"none","goal":"Quick GF lunch during internship"},
-  {"id":"F-03","condition":"diverse","age":22,"income_bracket":"scholarship stipend","location":"Denver, CO","diet":"nut-allergy","accessibility":"color-blind mode","goal":"Check allergen labels on sauces"},
-  {"id":"F-04","condition":"diverse","age":20,"income_bracket":"family support <4k","location":"Chicago, IL","diet":"pescatarian","accessibility":"none","goal":"Seafood-friendly snack after class"},
-  {"id":"F-05","condition":"diverse","age":25,"income_bracket":"intern stipend 10k","location":"Miami, FL","diet":"keto","accessibility":"large-text","goal":"Low-carb meal post-gym"},
-  {"id":"F-06","condition":"diverse","age":23,"income_bracket":"graduate stipend 15k","location":"Boston, MA","diet":"halal","accessibility":"none","goal":"Halal wings for study group"},
-  {"id":"F-07","condition":"diverse","age":21,"income_bracket":"part-time tutoring 5k","location":"Atlanta, GA","diet":"lactose-free","accessibility":"none","goal":"Dairy-free ranch test"}
-]

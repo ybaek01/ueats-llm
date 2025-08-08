@@ -1,9 +1,0 @@
-[
-  {"id":"D-01","condition":"diet","age":20,"income_bracket":"part-time job 4k","location":"Boston, MA","diet":"vegan","accessibility":"none","goal":"Plant-based lunch"},
-  {"id":"D-02","condition":"diet","age":22,"income_bracket":"financial aid only","location":"Providence, RI","diet":"gluten-free","accessibility":"none","goal":"GF snack while studying"},
-  {"id":"D-03","condition":"diet","age":19,"income_bracket":"scholarship stipend","location":"New Haven, CT","diet":"nut-allergy","accessibility":"none","goal":"Nut-free dinner"},
-  {"id":"D-04","condition":"diet","age":24,"income_bracket":"intern stipend 8k","location":"New York, NY","diet":"keto","accessibility":"none","goal":"Low-carb meal"},
-  {"id":"D-05","condition":"diet","age":23,"income_bracket":"part-time job 6k","location":"Newark, NJ","diet":"halal","accessibility":"none","goal":"Halal wings"},
-  {"id":"D-06","condition":"diet","age":21,"income_bracket":"family support <3k","location":"Philadelphia, PA","diet":"lactose-free","accessibility":"none","goal":"Dairy-free ranch"},
-  {"id":"D-07","condition":"diet","age":20,"income_bracket":"no personal income","location":"Baltimore, MD","diet":"vegetarian","accessibility":"none","goal":"Meat-free dinner"}
-]

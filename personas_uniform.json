@@ -1,9 +1,0 @@
-[
-  {"id":"U-01","condition":"uniform","age":19,"income_bracket":"no personal income","location":"Boston, MA","diet":"none","accessibility":"none","goal":"Grab a quick lunch between bio labs"},
-  {"id":"U-02","condition":"uniform","age":20,"income_bracket":"part-time job 4k","location":"Providence, RI","diet":"none","accessibility":"none","goal":"Late-night snack while coding"},
-  {"id":"U-03","condition":"uniform","age":21,"income_bracket":"financial aid only","location":"New Haven, CT","diet":"none","accessibility":"none","goal":"Celebrate quiz completion"},
-  {"id":"U-04","condition":"uniform","age":22,"income_bracket":"family support <3k","location":"New York, NY","diet":"none","accessibility":"none","goal":"Grab dinner during studio break"},
-  {"id":"U-05","condition":"uniform","age":23,"income_bracket":"intern stipend 8k","location":"Newark, NJ","diet":"none","accessibility":"none","goal":"Post-gym protein meal"},
-  {"id":"U-06","condition":"uniform","age":24,"income_bracket":"part-time job 6k","location":"Philadelphia, PA","diet":"none","accessibility":"none","goal":"Quick bite before night class"},
-  {"id":"U-07","condition":"uniform","age":20,"income_bracket":"no personal income","location":"Baltimore, MD","diet":"none","accessibility":"none","goal":"Lunch during hackathon"}
-]
