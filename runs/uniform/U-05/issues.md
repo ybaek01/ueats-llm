@@ -1,16 +1,16 @@
-# User Report: U-05
+# Persona Report
 
-## Persona Name
-U-05
+**Persona Name:** U-05
 
-## Critical Issues
-- **Limited Income**: With an intern stipend of $8,000, U-05 may struggle to afford quality post-gym protein meals, impacting their nutrition and recovery.
-- **Accessibility**: Lack of accessibility options may hinder U-05's ability to find suitable meal options that fit their dietary needs.
+**Critical Issues:**
+- Limited income (~$650/month) may restrict U-05's ability to order a large pizza, especially if delivery fees or tips are considered.
+- Lack of dietary restrictions could lead to confusion in selecting the right pizza options, especially if there are promotions or deals that don't align with their preferences.
 
-## Minor Friction
-- **Waiting Time**: U-05 experienced a delay (1 second) while navigating meal options, which could lead to frustration, especially when post-workout timing is crucial.
+**Minor Friction:**
+- The waiting time of 1 second before taking action may indicate a lack of urgency or clarity in the ordering process, potentially leading to frustration.
+- The absence of accessibility features could hinder the ordering experience for users with specific needs.
 
-## Suggested Improvements
-1. **Affordable Meal Options**: Introduce budget-friendly protein meal plans or discounts for interns to make nutritious meals more accessible.
-2. **Streamlined Navigation**: Optimize the user interface to reduce waiting times and enhance the overall experience when searching for post-gym meals.
-3. **Accessibility Features**: Implement features that cater to various dietary needs and preferences, ensuring that all users can find suitable meal options easily.
+**Suggested Improvements:**
+- Introduce budget-friendly pizza options or discounts for low-income customers to make ordering more feasible.
+- Simplify the ordering interface to allow for quicker selections and clearer options, reducing wait times.
+- Implement accessibility features, such as voice commands or larger text options, to enhance the user experience for all customers.

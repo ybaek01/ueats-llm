@@ -1,1 +1,10 @@
+cat > .gitignore <<'EOF'
+# Virtual / Cache
 venv/
+__pycache__/
+
+# Files
+runs/
+personas_*.json
+consolidated_report.pdf
+EOF

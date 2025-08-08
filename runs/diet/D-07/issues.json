@@ -2,12 +2,12 @@
   "persona": {
     "id": "D-07",
     "condition": "diet",
-    "age": 20,
-    "income_bracket": "no personal income",
-    "location": "Baltimore, MD",
-    "diet": "vegetarian",
+    "age": 23,
+    "income": "library aide (~$650/mo)",
+    "location": "Raleigh, NC",
+    "diet": "pescatarian",
     "accessibility": "none",
-    "goal": "Meat-free dinner"
+    "goal": "Order a pescatarian sushi roll for delivery in Raleigh, NC."
   },
   "run": {
     "history": [
@@ -19,5 +19,5 @@
       }
     ]
   },
-  "analysis": "# User Experience Report\n\n## Persona Name\nD-07\n\n## Critical Issues\n- **Limited Access to Resources**: As a 20-year-old vegetarian with no personal income, D-07 may struggle to find affordable, meat-free dinner options in Baltimore, MD.\n- **Dietary Restrictions**: The vegetarian diet can limit choices, especially in areas with fewer vegetarian-friendly restaurants or grocery stores.\n\n## Minor Friction\n- **Waiting Time**: The user experience includes a wait time of 1000 ms, which may indicate a delay in accessing information or services related to meal options.\n\n## Suggested Improvements\n- **Enhanced Resource Accessibility**: Partner with local grocery stores and restaurants to provide discounts or meal kits specifically for vegetarians, making it easier for D-07 to find affordable options.\n- **User-Friendly Platforms**: Develop an app or website that allows users to quickly find vegetarian meal options nearby, reducing wait times and improving overall experience.\n- **Community Engagement**: Create community events or workshops focused on vegetarian cooking, fostering a supportive environment for individuals with similar dietary goals."
+  "analysis": "# Persona Report\n\n**Persona Name:** D-07\n\n**Critical Issues:**\n- Limited income as a library aide (~$650/mo) may restrict options for higher-priced sushi delivery.\n- Difficulty in finding pescatarian-specific sushi options in Raleigh, NC, which could lead to frustration during the ordering process.\n\n**Minor Friction:**\n- Potential delays in delivery times, which can be exacerbated by high demand or limited restaurant availability.\n- Lack of clear dietary filters on delivery platforms, making it challenging to identify suitable options quickly.\n\n**Suggested Improvements:**\n- Enhance delivery platforms to include a dedicated pescatarian filter, allowing users to easily find relevant sushi options.\n- Partner with local sushi restaurants to offer exclusive pescatarian rolls at a budget-friendly price point for users with lower incomes.\n- Implement a loyalty program or discounts for frequent users to encourage repeat orders and alleviate financial constraints. \n\nBy addressing these issues, the overall experience for D-07 can be significantly improved, making it easier to achieve their goal of ordering a pescatarian sushi roll."
 }

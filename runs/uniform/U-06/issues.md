@@ -1,17 +1,16 @@
-# User Experience Report
+# Persona Report
 
-## Persona Name
-**U-06**
+**Persona Name:** U-06
 
-## Critical Issues
-- **Long Wait Times**: The user experienced a 1-second wait, which may indicate inefficiencies in service, especially for someone looking for a quick bite before class.
+**Critical Issues:**
+- **Delivery Time Uncertainty:** The persona may experience anxiety regarding the estimated delivery time, especially if they are hungry and waiting for their pizza.
+- **Payment Method Limitations:** With a limited income from work-study, the persona may face challenges if the payment options do not align with their financial situation.
 
-## Minor Friction
-- **Limited Options**: As a student with a part-time job and no specific dietary restrictions, the user may find the menu options lacking in variety or speed of service.
+**Minor Friction:**
+- **User Interface Navigation:** The ordering process may be cumbersome if the app or website is not user-friendly, leading to potential frustration.
+- **Lack of Customization Options:** The persona might want to customize their pizza (e.g., extra cheese, no olives), and limited options could detract from their experience.
 
-## Suggested Improvements
-1. **Streamline Service**: Implement a faster order processing system to reduce wait times, especially during peak hours.
-2. **Menu Optimization**: Introduce a "Quick Bites" section on the menu featuring items that can be prepared and served quickly.
-3. **Mobile Ordering**: Consider a mobile app or online ordering system to allow users to place orders in advance, minimizing wait times upon arrival.
-
-By addressing these issues, the experience for U-06 can be significantly enhanced, aligning with their goal of a quick meal before class.
+**Suggested Improvements:**
+- **Real-Time Tracking:** Implement a real-time tracking feature for deliveries to alleviate anxiety about wait times.
+- **Flexible Payment Options:** Introduce payment methods that cater to students, such as cash on delivery or installment payments.
+- **Enhanced User Experience:** Simplify the ordering interface and provide clear customization options to improve overall satisfaction.

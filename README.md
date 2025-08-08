@@ -11,14 +11,22 @@ Browser engine: Playwright Chromium<br>
 OpenAI account: sk-XXXXXXXXXXXXXXX (Microsoft Team Message needed)<br>
 Dependencies: Python 3.11+ | Playwright | OpenAI Python SDK >= 1.0.0 | wkhtmltopdf
 
-# Folder Layout
+# Folder Layout (Ideal)
 ueats-llm/<br>
+├─ README.md<br>
+├─ .gitignore<br>
 ├─ personas_uniform.json<br>
 ├─ personas_diet.json<br>
 ├─ personas_diverse.json<br>
-├─ run_operators.py      ← main script<br>
-├─ compose_report.py     ← merges → PDF<br>
-└─ venv/                 ← virtual env<br>
+├─ consolidated_report.pdf ← Merged PDF<br>
+├─ generate_personas.py    ← generate personas<br>
+├─ run_operators.py        ← main script<br>
+├─ compose_report.py       ← merges → PDF<br>
+├─ runs/                   ← run outcomes<br>
+└─ venv/                   ← virtual env<br>
+
+# generate_personas.py
+
 
 # run_operators.py
 1. Open "https://www.ubereats.com" in an iPhone 15 viewport (393×852 px)
@@ -70,6 +78,8 @@ playwright install chromium<Br>
 echo 'export OPENAI_API_KEY="sk-XXXXXXXXXXXXXXX"' >> ~/.zshrc
 source ~/.zshrc
 
+echo $OPENAI_API_KEY    ← Check API KEY<br>
+
 6. VS Code Extensions<br>
 Python & Playwright Test
 
@@ -78,15 +88,23 @@ Python & Playwright Test
 source venv/bin/activate<br>
 code .<br>
 
+1) Generate Uniform<br>
+python generate_personas.py --condition uniform --count 7
 
-1) Uniform<br>
+2) Generate Diet-only<br>
+python generate_personas.py --condition diet --count 7
+
+3) Generate Fully-diverse<br>
+python generate_personas.py --condition diverse --count 7
+
+4) Run Uniform<br>
 python run_operators.py --personas personas_uniform.json --output runs/uniform
 
-2) Diet-only<br>
+5) Run Diet-only<br>
 python run_operators.py --personas personas_diet.json --output runs/diet
 
-3) Fully-diverse<br>
+6) Run Fully-diverse<br>
 python run_operators.py --personas personas_diverse.json --output runs/diverse
 
-4) Merge PDF<br>
+7) Merge PDF<br>
 python compose_report.py --input runs --pdf consolidated_report.pdf

@@ -1,18 +1,16 @@
-# User Experience Report
+# Persona Report
 
-## Persona Name
-**U-03**
+**Persona Name:** U-03
 
 ## Critical Issues
-- **Limited Financial Resources**: As a financial aid-only student, U-03 may struggle to afford celebratory activities or rewards after completing quizzes, impacting motivation and satisfaction.
-- **Lack of Accessibility**: The absence of accessibility features may hinder U-03's ability to fully engage with the platform, especially if they have any unreported needs.
+- **Budget Constraints:** With an income of approximately $650/month, U-03 may struggle to afford a large pizza with extra toppings, especially if they have other expenses.
+- **Limited Options:** Depending on local pizza places, U-03 may face limited choices for toppings or sizes that fit their budget.
 
 ## Minor Friction
-- **Waiting Time**: U-03 experienced a delay (1000 ms) during their interaction, which could lead to frustration and a perception of inefficiency in the platform.
+- **Ordering Process:** The wait time of 1000 ms indicates potential delays in the ordering interface, which could lead to frustration.
+- **Accessibility:** U-03 has no noted accessibility issues, but the ordering platform should ensure it remains user-friendly for all.
 
 ## Suggested Improvements
-- **Incentive Programs**: Introduce low-cost or free rewards for quiz completion, such as digital badges or recognition, to enhance motivation for financially constrained students.
-- **Accessibility Enhancements**: Implement features that cater to diverse needs, ensuring all users can celebrate their achievements comfortably.
-- **Optimize Loading Times**: Reduce waiting times by improving backend performance to create a smoother user experience. 
-
-By addressing these issues, the platform can better support U-03's goals and enhance overall user satisfaction.
+- **Budget-Friendly Options:** Introduce a "value menu" for large pizzas with extra toppings that cater to budget-conscious customers.
+- **Streamlined Ordering:** Optimize the ordering interface to reduce wait times and enhance user experience.
+- **Promotions:** Offer discounts or loyalty programs to encourage repeat orders and make dining more affordable for U-03.

@@ -1,17 +1,18 @@
-# User Experience Report
+# Pizza Ordering Experience Report
 
 ## Persona Name
-**U-01**: A 19-year-old student in Boston, MA, seeking quick lunch options between bio labs.
+**Retail Associate - Alexandria, VA**
 
 ## Critical Issues
-- **Long Wait Times**: The user experiences delays (e.g., 1000 ms wait) when trying to access lunch options, which disrupts their tight schedule between classes.
+1. **Long Wait Times**: The user experienced a significant wait time (1000 ms) which may lead to frustration and a negative perception of the service.
+2. **Lack of Accessibility Features**: The absence of accessibility options could hinder users with disabilities from completing their order efficiently.
 
 ## Minor Friction
-- **Limited Accessibility**: The persona has no specific dietary restrictions or accessibility needs, but the lack of options may limit their choices, especially during peak hours.
+1. **User Interface Clarity**: The ordering interface may not be intuitive, causing confusion during the selection process.
+2. **Limited Payment Options**: If payment methods are restricted, it could deter users from completing their purchase.
 
 ## Suggested Improvements
-1. **Streamline Ordering Process**: Implement a faster, more efficient ordering system to reduce wait times, possibly through a mobile app or pre-ordering feature.
-2. **Expand Menu Options**: Introduce a variety of quick, healthy lunch options that cater to diverse preferences, ensuring students can find something suitable without extensive searching.
-3. **Optimize Location Signage**: Improve visibility and information about available lunch spots on campus to help users quickly locate their options. 
-
-By addressing these issues, U-01 can enjoy a more efficient and satisfying lunch experience.
+1. **Optimize Loading Times**: Reduce wait times by improving server response and loading speeds to enhance user experience.
+2. **Implement Accessibility Features**: Introduce options such as voice commands and screen reader compatibility to cater to a wider audience.
+3. **Enhance User Interface**: Simplify the ordering process with clearer navigation and visual cues.
+4. **Expand Payment Options**: Include various payment methods (e.g., digital wallets) to accommodate different user preferences.

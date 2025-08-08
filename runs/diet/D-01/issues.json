@@ -2,12 +2,12 @@
   "persona": {
     "id": "D-01",
     "condition": "diet",
-    "age": 20,
-    "income_bracket": "part-time job 4k",
-    "location": "Boston, MA",
+    "age": 19,
+    "income": "campus dining (~$600/mo)",
+    "location": "New York, NY",
     "diet": "vegan",
     "accessibility": "none",
-    "goal": "Plant-based lunch"
+    "goal": "Order a vegan burrito from a local New York restaurant."
   },
   "run": {
     "history": [
@@ -19,5 +19,5 @@
       }
     ]
   },
-  "analysis": "# User Experience Report\n\n## Persona Name\nD-01\n\n## Critical Issues\n1. **Limited Access to Vegan Options**: The user struggles to find convenient plant-based lunch options in Boston, which can lead to frustration and unhealthy choices.\n2. **Time Constraints**: As a part-time worker, the user may have limited time to prepare or seek out suitable meals, impacting their dietary goals.\n\n## Minor Friction\n1. **Lack of Information**: The user may not have access to comprehensive resources or apps that highlight vegan-friendly restaurants or meal prep ideas in their area.\n2. **Social Situations**: Dining out with friends who may not prioritize vegan options can create pressure and lead to suboptimal meal choices.\n\n## Suggested Improvements\n1. **Curated Vegan Guides**: Develop a mobile app or website that lists vegan-friendly restaurants and meal prep resources in Boston, tailored to the user's budget and time constraints.\n2. **Meal Prep Workshops**: Offer local workshops or online classes focused on quick and easy vegan meal prep, helping users maintain their dietary goals despite a busy schedule."
+  "analysis": "# User Experience Report\n\n## Persona Name\nD-01\n\n## Critical Issues\n1. **Limited Vegan Options**: The local restaurant may not have a diverse vegan menu, making it difficult for D-01 to find suitable choices.\n2. **Accessibility**: D-01 has no accessibility features, which could hinder the ordering process, especially if the restaurant's website or app is not user-friendly.\n\n## Minor Friction\n1. **Wait Time**: The initial wait time of 1000 ms may indicate a slow-loading website or app, which can lead to frustration during the ordering process.\n2. **Navigation**: Difficulty in navigating the menu to find vegan options could lead to a poor user experience.\n\n## Suggested Improvements\n1. **Expand Vegan Menu**: Restaurants should consider adding more vegan options to cater to diverse dietary needs.\n2. **Enhance Accessibility**: Implement features like voice commands or screen reader compatibility to assist users with different accessibility needs.\n3. **Optimize Loading Speed**: Improve website/app performance to reduce wait times and enhance user satisfaction."
 }

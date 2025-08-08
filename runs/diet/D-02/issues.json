@@ -2,12 +2,12 @@
   "persona": {
     "id": "D-02",
     "condition": "diet",
-    "age": 22,
-    "income_bracket": "financial aid only",
-    "location": "Providence, RI",
-    "diet": "gluten-free",
+    "age": 25,
+    "income": "part-time barista (~$800/mo)",
+    "location": "Queens, NY",
+    "diet": "vegetarian",
     "accessibility": "none",
-    "goal": "GF snack while studying"
+    "goal": "Order a vegetarian pizza from a local Queens pizzeria."
   },
   "run": {
     "history": [
@@ -19,5 +19,5 @@
       }
     ]
   },
-  "analysis": "# Persona Report\n\n**Persona Name:** D-02\n\n**Critical Issues:**\n- Limited access to gluten-free snacks that are convenient for studying.\n- Financial constraints due to reliance on financial aid, making it difficult to purchase specialty items.\n\n**Minor Friction:**\n- Lack of local stores or online options that cater specifically to gluten-free diets.\n- Difficulty in finding quick, healthy snack options that fit within a student budget.\n\n**Suggested Improvements:**\n- Partner with local grocery stores to create a dedicated gluten-free section that includes affordable snack options.\n- Develop a subscription service for gluten-free snacks tailored for students, offering discounts for those on financial aid.\n- Increase awareness of gluten-free options available on campus or through local delivery services to enhance accessibility for students like D-02. \n\nBy addressing these issues, we can significantly improve the study experience for gluten-free students."
+  "analysis": "# Persona Report\n\n**Persona Name:** D-02\n\n**Critical Issues:**\n- Limited income as a part-time barista (~$800/mo) restricts dining options, making it challenging to afford higher-priced vegetarian pizzas.\n- Lack of accessibility options may hinder the ability to easily navigate local pizzerias or online ordering platforms.\n\n**Minor Friction:**\n- The waiting time of 1000 ms indicates potential delays in the ordering process, which could lead to frustration, especially when trying to make a quick decision.\n\n**Suggested Improvements:**\n- Partner with local pizzerias to offer budget-friendly vegetarian options, ensuring affordability for customers with limited income.\n- Enhance online ordering platforms to reduce wait times and improve user experience, possibly by implementing faster loading times or streamlined navigation.\n- Consider adding accessibility features to websites and apps, such as voice commands or larger text options, to cater to a wider audience. \n\nBy addressing these issues, the overall experience for D-02 can be significantly improved, making it easier to achieve their goal of ordering a vegetarian pizza."
 }

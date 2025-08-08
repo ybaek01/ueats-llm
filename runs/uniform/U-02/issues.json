@@ -2,12 +2,12 @@
   "persona": {
     "id": "U-02",
     "condition": "uniform",
-    "age": 20,
-    "income_bracket": "part-time job 4k",
-    "location": "Providence, RI",
+    "age": 23,
+    "income": "campus dining (~$600/mo)",
+    "location": "Queens, NY",
     "diet": "none",
     "accessibility": "none",
-    "goal": "Late-night snack while coding"
+    "goal": "Order a large pepperoni pizza for delivery in Queens, NY."
   },
   "run": {
     "history": [
@@ -19,5 +19,5 @@
       }
     ]
   },
-  "analysis": "# User Experience Report\n\n## Persona Name\n**U-02**: A 20-year-old part-time worker from Providence, RI, seeking late-night snacks while coding.\n\n## Critical Issues\n- **Limited Snack Options**: U-02 struggles to find quick and accessible late-night snack options that fit their budget and dietary preferences.\n- **Accessibility**: Lack of nearby stores or delivery services that operate late at night, making it difficult to satisfy cravings.\n\n## Minor Friction\n- **Waiting Time**: U-02 experiences delays when trying to order snacks online, which can disrupt their coding flow.\n- **Budget Constraints**: As a part-time worker, U-02 is limited in spending, leading to frustration when options are too expensive.\n\n## Suggested Improvements\n- **Curated Late-Night Snack Delivery**: Partner with local stores to offer a dedicated late-night snack delivery service that caters to budget-conscious students.\n- **User-Friendly App**: Develop an app that minimizes wait times and allows for quick ordering, with options filtered by price and dietary needs.\n- **Promotions for Students**: Implement discounts or loyalty programs specifically for students to encourage repeat business and ease financial strain."
+  "analysis": "# Persona Report\n\n**Persona Name:** U-02\n\n**Critical Issues:**\n- **Delivery Time:** The user experienced a significant wait time, which may lead to frustration and dissatisfaction with the service.\n- **Order Clarity:** Lack of clear options for customizing the pizza order could hinder the user’s experience.\n\n**Minor Friction:**\n- **User Interface:** The ordering interface may not be intuitive, causing confusion during the selection process.\n- **Payment Options:** Limited payment methods could restrict the user’s ability to complete the order smoothly.\n\n**Suggested Improvements:**\n1. **Streamline Ordering Process:** Simplify the interface to make it more user-friendly, ensuring that options for customization are easily accessible.\n2. **Enhance Delivery Tracking:** Implement real-time tracking for orders to keep users informed about their delivery status, reducing anxiety related to wait times.\n3. **Expand Payment Options:** Introduce a wider range of payment methods to accommodate different user preferences, enhancing the overall convenience of the ordering process."
 }

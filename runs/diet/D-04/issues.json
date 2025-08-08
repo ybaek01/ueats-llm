@@ -2,12 +2,12 @@
   "persona": {
     "id": "D-04",
     "condition": "diet",
-    "age": 24,
-    "income_bracket": "intern stipend 8k",
-    "location": "New York, NY",
-    "diet": "keto",
+    "age": 23,
+    "income": "tutoring (~$18/h, 6h/wk)",
+    "location": "Alexandria, VA",
+    "diet": "kosher",
     "accessibility": "none",
-    "goal": "Low-carb meal"
+    "goal": "Order a kosher falafel wrap from a local restaurant in Alexandria."
   },
   "run": {
     "history": [
@@ -19,5 +19,5 @@
       }
     ]
   },
-  "analysis": "# Persona Report\n\n**Persona Name:** Diet-Conscious Intern\n\n**Critical Issues:**\n- Limited budget (intern stipend of $8,000) restricts access to high-quality keto meal options.\n- Lack of accessibility to affordable grocery stores or meal prep services that cater to a keto diet in New York.\n\n**Minor Friction:**\n- Difficulty in finding low-carb meal options that fit within the budget, leading to potential dietary lapses.\n- Time constraints due to internship responsibilities make meal preparation challenging.\n\n**Suggested Improvements:**\n- Partner with local grocery stores to offer discounts on keto-friendly products for interns.\n- Develop a meal prep service that provides affordable, ready-to-eat keto meals tailored for budget-conscious individuals.\n- Create an online platform or app that aggregates low-carb meal options from various restaurants and grocery stores, highlighting budget-friendly choices.\n\nBy addressing these issues, the experience for diet-conscious interns can be significantly improved, helping them achieve their dietary goals without financial strain."
+  "analysis": "# Persona Report\n\n### Persona Name\nD-04\n\n### Critical Issues\n- **Limited Accessibility**: The persona has no accessibility options, which may hinder their ability to order food easily, especially if they have mobility challenges or dietary restrictions.\n- **Dietary Restrictions**: The need for kosher food limits the available options, making it difficult to find suitable restaurants in Alexandria.\n\n### Minor Friction\n- **Ordering Process**: The persona may experience delays or complications when trying to navigate restaurant menus or online ordering systems that do not clearly indicate kosher options.\n\n### Suggested Improvements\n1. **Enhanced Accessibility Features**: Implement user-friendly interfaces for ordering, including voice commands or simplified navigation for those with mobility issues.\n2. **Clear Dietary Labels**: Restaurants should provide clear labeling of kosher options on their menus and online platforms to facilitate easier decision-making for customers with dietary restrictions.\n3. **Local Partnerships**: Encourage local restaurants to collaborate and create a dedicated kosher menu, increasing the variety of options available to the persona."
 }

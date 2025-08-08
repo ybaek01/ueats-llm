@@ -1,17 +1,16 @@
-# User Experience Report
+# Persona Report
 
-## Persona Name
-**U-02**: A 20-year-old part-time worker from Providence, RI, seeking late-night snacks while coding.
+**Persona Name:** U-02
 
-## Critical Issues
-- **Limited Snack Options**: U-02 struggles to find quick and accessible late-night snack options that fit their budget and dietary preferences.
-- **Accessibility**: Lack of nearby stores or delivery services that operate late at night, making it difficult to satisfy cravings.
+**Critical Issues:**
+- **Delivery Time:** The user experienced a significant wait time, which may lead to frustration and dissatisfaction with the service.
+- **Order Clarity:** Lack of clear options for customizing the pizza order could hinder the user’s experience.
 
-## Minor Friction
-- **Waiting Time**: U-02 experiences delays when trying to order snacks online, which can disrupt their coding flow.
-- **Budget Constraints**: As a part-time worker, U-02 is limited in spending, leading to frustration when options are too expensive.
+**Minor Friction:**
+- **User Interface:** The ordering interface may not be intuitive, causing confusion during the selection process.
+- **Payment Options:** Limited payment methods could restrict the user’s ability to complete the order smoothly.
 
-## Suggested Improvements
-- **Curated Late-Night Snack Delivery**: Partner with local stores to offer a dedicated late-night snack delivery service that caters to budget-conscious students.
-- **User-Friendly App**: Develop an app that minimizes wait times and allows for quick ordering, with options filtered by price and dietary needs.
-- **Promotions for Students**: Implement discounts or loyalty programs specifically for students to encourage repeat business and ease financial strain.
+**Suggested Improvements:**
+1. **Streamline Ordering Process:** Simplify the interface to make it more user-friendly, ensuring that options for customization are easily accessible.
+2. **Enhance Delivery Tracking:** Implement real-time tracking for orders to keep users informed about their delivery status, reducing anxiety related to wait times.
+3. **Expand Payment Options:** Introduce a wider range of payment methods to accommodate different user preferences, enhancing the overall convenience of the ordering process.

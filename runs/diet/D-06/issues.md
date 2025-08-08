@@ -2,15 +2,15 @@
 
 **Persona Name:** D-06
 
-**Critical Issues:**
-- Limited access to lactose-free products in Philadelphia, PA, making it difficult to find suitable dairy-free ranch options.
-- Financial constraints due to a low income bracket (<$3k), which may limit purchasing power for specialty food items.
+## Critical Issues
+1. **Limited Options:** The persona struggles to find local pizzerias that offer lactose-free pizza, which is essential for their dietary needs.
+2. **Accessibility:** There are no specific accessibility features or options available for individuals with dietary restrictions in the local pizzerias.
 
-**Minor Friction:**
-- The time spent searching for lactose-free alternatives can be frustrating, especially when options are scarce.
-- Lack of awareness about local stores or online platforms that offer dairy-free products.
+## Minor Friction
+1. **Ordering Process:** The persona may face challenges navigating menus that do not clearly indicate lactose-free options, leading to confusion and potential errors in ordering.
+2. **Wait Times:** The persona experienced a delay while waiting for their order, which can be frustrating, especially when dietary needs are involved.
 
-**Suggested Improvements:**
-- Increase availability of lactose-free products in local grocery stores through partnerships with suppliers.
-- Create an online resource or app that lists nearby stores with lactose-free options and their inventory.
-- Offer discounts or loyalty programs for lactose-free products to make them more affordable for individuals with limited income.
+## Suggested Improvements
+1. **Menu Clarity:** Pizzerias should clearly label lactose-free options on their menus to facilitate easier ordering for customers with dietary restrictions.
+2. **Online Ordering System:** Implement an online ordering system that allows users to filter options based on dietary needs, ensuring a smoother and more efficient ordering experience.
+3. **Customer Education:** Provide information on lactose-free ingredients and preparation methods to build trust and confidence among customers with dietary restrictions.

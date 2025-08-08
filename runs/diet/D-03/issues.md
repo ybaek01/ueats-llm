@@ -2,15 +2,15 @@
 
 **Persona Name:** D-03
 
-## Critical Issues
-- **Nut Allergy:** The primary concern is ensuring that all meals are completely nut-free to avoid severe allergic reactions. This requires careful ingredient selection and preparation methods.
-- **Accessibility:** Lack of accessibility options in local dining establishments may limit choices for safe dining.
+**Critical Issues:**
+- Limited access to halal food options in Miami, which restricts the ability to order preferred meals like chicken biryani.
+- Financial constraints due to a work-study income of $200/week, making it challenging to afford dining out frequently.
 
-## Minor Friction
-- **Limited Dining Options:** The persona may experience frustration due to a scarcity of restaurants that cater specifically to nut-free diets, leading to fewer choices for dinner.
-- **Social Situations:** Dining out with friends may create anxiety about potential exposure to allergens, impacting social experiences.
+**Minor Friction:**
+- The waiting time for food delivery can be frustrating, especially when craving specific dishes.
+- Lack of clear information on halal certification for local restaurants, leading to uncertainty about food choices.
 
-## Suggested Improvements
-- **Enhanced Menu Options:** Local restaurants should offer clearly labeled nut-free options and allergen-free menus to accommodate individuals with dietary restrictions.
-- **Awareness Campaigns:** Initiatives to educate restaurant staff about nut allergies can improve safety and confidence for diners with allergies.
-- **Community Support Groups:** Establishing local support groups for individuals with dietary restrictions can provide resources and shared experiences, enhancing the dining experience.
+**Suggested Improvements:**
+- Increase the availability of halal options in local restaurants, possibly through partnerships with halal suppliers.
+- Implement a user-friendly app or website feature that allows users to filter restaurants by halal certification.
+- Offer promotions or discounts for students to make dining out more affordable, encouraging more frequent orders.

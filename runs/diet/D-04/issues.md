@@ -1,18 +1,16 @@
 # Persona Report
 
-**Persona Name:** Diet-Conscious Intern
+### Persona Name
+D-04
 
-**Critical Issues:**
-- Limited budget (intern stipend of $8,000) restricts access to high-quality keto meal options.
-- Lack of accessibility to affordable grocery stores or meal prep services that cater to a keto diet in New York.
+### Critical Issues
+- **Limited Accessibility**: The persona has no accessibility options, which may hinder their ability to order food easily, especially if they have mobility challenges or dietary restrictions.
+- **Dietary Restrictions**: The need for kosher food limits the available options, making it difficult to find suitable restaurants in Alexandria.
 
-**Minor Friction:**
-- Difficulty in finding low-carb meal options that fit within the budget, leading to potential dietary lapses.
-- Time constraints due to internship responsibilities make meal preparation challenging.
+### Minor Friction
+- **Ordering Process**: The persona may experience delays or complications when trying to navigate restaurant menus or online ordering systems that do not clearly indicate kosher options.
 
-**Suggested Improvements:**
-- Partner with local grocery stores to offer discounts on keto-friendly products for interns.
-- Develop a meal prep service that provides affordable, ready-to-eat keto meals tailored for budget-conscious individuals.
-- Create an online platform or app that aggregates low-carb meal options from various restaurants and grocery stores, highlighting budget-friendly choices.
-
-By addressing these issues, the experience for diet-conscious interns can be significantly improved, helping them achieve their dietary goals without financial strain.
+### Suggested Improvements
+1. **Enhanced Accessibility Features**: Implement user-friendly interfaces for ordering, including voice commands or simplified navigation for those with mobility issues.
+2. **Clear Dietary Labels**: Restaurants should provide clear labeling of kosher options on their menus and online platforms to facilitate easier decision-making for customers with dietary restrictions.
+3. **Local Partnerships**: Encourage local restaurants to collaborate and create a dedicated kosher menu, increasing the variety of options available to the persona.

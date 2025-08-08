@@ -3,11 +3,11 @@
     "id": "U-05",
     "condition": "uniform",
     "age": 23,
-    "income_bracket": "intern stipend 8k",
-    "location": "Newark, NJ",
+    "income": "library aide (~$650/mo)",
+    "location": "Alexandria, VA",
     "diet": "none",
     "accessibility": "none",
-    "goal": "Post-gym protein meal"
+    "goal": "Order a large pepperoni pizza for dinner tonight."
   },
   "run": {
     "history": [
@@ -19,5 +19,5 @@
       }
     ]
   },
-  "analysis": "# User Report: U-05\n\n## Persona Name\nU-05\n\n## Critical Issues\n- **Limited Income**: With an intern stipend of $8,000, U-05 may struggle to afford quality post-gym protein meals, impacting their nutrition and recovery.\n- **Accessibility**: Lack of accessibility options may hinder U-05's ability to find suitable meal options that fit their dietary needs.\n\n## Minor Friction\n- **Waiting Time**: U-05 experienced a delay (1 second) while navigating meal options, which could lead to frustration, especially when post-workout timing is crucial.\n\n## Suggested Improvements\n1. **Affordable Meal Options**: Introduce budget-friendly protein meal plans or discounts for interns to make nutritious meals more accessible.\n2. **Streamlined Navigation**: Optimize the user interface to reduce waiting times and enhance the overall experience when searching for post-gym meals.\n3. **Accessibility Features**: Implement features that cater to various dietary needs and preferences, ensuring that all users can find suitable meal options easily."
+  "analysis": "# Persona Report\n\n**Persona Name:** U-05\n\n**Critical Issues:**\n- Limited income (~$650/month) may restrict U-05's ability to order a large pizza, especially if delivery fees or tips are considered.\n- Lack of dietary restrictions could lead to confusion in selecting the right pizza options, especially if there are promotions or deals that don't align with their preferences.\n\n**Minor Friction:**\n- The waiting time of 1 second before taking action may indicate a lack of urgency or clarity in the ordering process, potentially leading to frustration.\n- The absence of accessibility features could hinder the ordering experience for users with specific needs.\n\n**Suggested Improvements:**\n- Introduce budget-friendly pizza options or discounts for low-income customers to make ordering more feasible.\n- Simplify the ordering interface to allow for quicker selections and clearer options, reducing wait times.\n- Implement accessibility features, such as voice commands or larger text options, to enhance the user experience for all customers."
 }
