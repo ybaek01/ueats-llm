@@ -8,11 +8,9 @@ Usage:
   python generate_personas.py --condition uniform --count 7
   python generate_personas.py --condition diet --count 7
   python generate_personas.py --condition diverse --count 7
-  # 수동 파일명 지정:
+  
+  # How to Title:
   python generate_personas.py --condition diet --count 7 --out personas_diet_custom.json
-
-Env (optional):
-  OPENAI_API_KEY=...  # 있으면 goal을 LLM으로 생성, 없으면 로컬 규칙
 """
 import argparse, json, os, random
 from typing import List, Dict, Set, Optional
@@ -232,7 +230,7 @@ def main():
             out.append(p)
         validate_diverse(out)
 
-    # 파일 저장 (underscore)
+    # Save file (underscore)
     out_path = args.out or f"personas_{args.condition}.json"
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=2)
