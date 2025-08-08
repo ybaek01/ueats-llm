@@ -90,7 +90,7 @@ async def main(args):
         for idx, persona in enumerate(personas, 1):
             tag, sess = persona.get("id") or f"P-{idx:02}", root / (persona.get("id") or f"P-{idx:02}")
             if (sess / "issues.json").exists():
-                print(f"{tag} ✔︎ 스킵")
+                print(f"{tag} ✔︎ Skip")
                 continue
             sess.mkdir(parents=True, exist_ok=True)
             print(f"▶ {tag}")
