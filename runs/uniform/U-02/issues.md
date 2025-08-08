@@ -1,19 +1,17 @@
 # User Experience Report
 
 ## Persona Name
-**U-02**  
-- Age: 20  
-- Location: Providence, RI  
-- Income: Part-time job ($4k)  
-- Goal: Late-night snack while coding  
+**U-02**: A 20-year-old part-time worker from Providence, RI, seeking late-night snacks while coding.
 
 ## Critical Issues
-1. **Accessibility**: The persona has no specific dietary restrictions, but the lack of options for late-night snacks may hinder their ability to find suitable food quickly.
-2. **Time Constraints**: As a student with a part-time job, U-02 may have limited time to prepare or order food, especially during late-night coding sessions.
+- **Limited Snack Options**: U-02 struggles to find quick and accessible late-night snack options that fit their budget and dietary preferences.
+- **Accessibility**: Lack of nearby stores or delivery services that operate late at night, making it difficult to satisfy cravings.
 
 ## Minor Friction
-- **Waiting Time**: The persona experiences delays when trying to access food options, which can disrupt their workflow and focus during coding sessions.
+- **Waiting Time**: U-02 experiences delays when trying to order snacks online, which can disrupt their coding flow.
+- **Budget Constraints**: As a part-time worker, U-02 is limited in spending, leading to frustration when options are too expensive.
 
 ## Suggested Improvements
-1. **Curated Late-Night Snack Options**: Develop a platform or app that offers quick, easy-to-order late-night snacks tailored for students and young professionals.
-2. **Streamlined Ordering Process**: Implement features that reduce waiting times, such as pre-ordering or express delivery options, to enhance the user experience during late-night hours.
+- **Curated Late-Night Snack Delivery**: Partner with local stores to offer a dedicated late-night snack delivery service that caters to budget-conscious students.
+- **User-Friendly App**: Develop an app that minimizes wait times and allows for quick ordering, with options filtered by price and dietary needs.
+- **Promotions for Students**: Implement discounts or loyalty programs specifically for students to encourage repeat business and ease financial strain.

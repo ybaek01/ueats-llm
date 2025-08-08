@@ -4,15 +4,15 @@
 
 **Critical Issues:**
 - Limited access to halal food options in Boston, particularly for group settings.
-- Difficulty in finding restaurants that cater to diverse dietary needs, which can hinder social gatherings.
+- Difficulty in finding reliable delivery services that cater to specific dietary needs.
 
 **Minor Friction:**
 - Long wait times when searching for halal wings online, leading to frustration.
-- Lack of clear information on halal certification for local eateries, causing uncertainty.
+- Lack of clear labeling for halal options on menus, causing confusion during selection.
 
 **Suggested Improvements:**
-- Develop a dedicated app or website feature that filters restaurants by halal options and provides real-time availability for group orders.
-- Implement a user-friendly interface that includes reviews and ratings specifically for halal food, enhancing trust and decision-making.
-- Collaborate with local halal restaurants to offer special promotions for study groups, encouraging more social dining experiences. 
+- Develop a dedicated platform or app that aggregates halal food options, specifically for group orders.
+- Implement a filter system on existing food delivery apps to easily identify halal options.
+- Partner with local restaurants to ensure clear labeling of halal items and promote them through social media campaigns targeting students.
 
-By addressing these issues, F-06 can enjoy a more seamless experience while fulfilling their goal of finding halal wings for their study group.
+By addressing these issues, F-06 and similar personas can have a more seamless experience when organizing study group meals.

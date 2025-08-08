@@ -73,7 +73,7 @@ async def act_with_llm(page, persona):
 # ────────── 퍼소나 한 명 실행 ────────── #
 async def run_one(play, persona, out_dir):
     browser = await play.webkit.launch(headless=HEADLESS)
-    context = await browser.new_context(**play.devices["iPhone 16"])
+    context = await browser.new_context(**play.devices["iPhone 15"])
     page    = await context.new_page()
 
     await page.goto("https://www.ubereats.com", timeout=30000)

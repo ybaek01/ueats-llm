@@ -1,17 +1,16 @@
-# User Experience Report
+# User Report: U-05
 
 ## Persona Name
-**U-05**: 23-year-old intern from Newark, NJ, seeking a post-gym protein meal.
+U-05
 
 ## Critical Issues
-- **Limited Meal Options**: The persona struggles to find convenient, protein-rich meal options post-gym that fit within a tight budget (intern stipend of $8k).
-- **Accessibility**: Lack of accessible meal services or delivery options in the Newark area, making it difficult to obtain meals quickly after workouts.
+- **Limited Income**: With an intern stipend of $8,000, U-05 may struggle to afford quality post-gym protein meals, impacting their nutrition and recovery.
+- **Accessibility**: Lack of accessibility options may hinder U-05's ability to find suitable meal options that fit their dietary needs.
 
 ## Minor Friction
-- **Waiting Time**: The persona experiences delays when searching for meal options, which can be frustrating after an intense workout.
-- **Dietary Restrictions**: The absence of dietary preferences may lead to overwhelming choices, complicating the decision-making process.
+- **Waiting Time**: U-05 experienced a delay (1 second) while navigating meal options, which could lead to frustration, especially when post-workout timing is crucial.
 
 ## Suggested Improvements
-- **Curated Meal Plans**: Introduce a service that offers affordable, protein-rich meal plans specifically designed for post-gym recovery.
-- **Quick Access Features**: Implement a mobile app feature that allows users to quickly find nearby meal options with minimal wait time.
-- **Dietary Filters**: Provide filters for dietary preferences to streamline the selection process and enhance user satisfaction.
+1. **Affordable Meal Options**: Introduce budget-friendly protein meal plans or discounts for interns to make nutritious meals more accessible.
+2. **Streamlined Navigation**: Optimize the user interface to reduce waiting times and enhance the overall experience when searching for post-gym meals.
+3. **Accessibility Features**: Implement features that cater to various dietary needs and preferences, ensuring that all users can find suitable meal options easily.

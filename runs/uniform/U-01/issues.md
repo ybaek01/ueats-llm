@@ -4,15 +4,14 @@
 **U-01**: A 19-year-old student in Boston, MA, seeking quick lunch options between bio labs.
 
 ## Critical Issues
-- **Time Constraints**: U-01 has limited time between classes, making it essential to find quick service options.
-- **Accessibility**: Lack of accessible dining options may hinder U-01's ability to grab lunch efficiently.
+- **Long Wait Times**: The user experiences delays (e.g., 1000 ms wait) when trying to access lunch options, which disrupts their tight schedule between classes.
 
 ## Minor Friction
-- **Waiting Time**: A 1-second wait recorded indicates potential delays in service or app loading, which can be frustrating for someone in a hurry.
+- **Limited Accessibility**: The persona has no specific dietary restrictions or accessibility needs, but the lack of options may limit their choices, especially during peak hours.
 
 ## Suggested Improvements
-1. **Streamlined Ordering**: Implement a mobile ordering system that allows U-01 to pre-order meals for quick pickup.
-2. **Accessibility Features**: Ensure that dining locations are easily accessible and provide clear signage for quick navigation.
-3. **Real-Time Updates**: Introduce real-time updates on wait times and order status to help U-01 manage their time effectively. 
+1. **Streamline Ordering Process**: Implement a faster, more efficient ordering system to reduce wait times, possibly through a mobile app or pre-ordering feature.
+2. **Expand Menu Options**: Introduce a variety of quick, healthy lunch options that cater to diverse preferences, ensuring students can find something suitable without extensive searching.
+3. **Optimize Location Signage**: Improve visibility and information about available lunch spots on campus to help users quickly locate their options. 
 
 By addressing these issues, U-01 can enjoy a more efficient and satisfying lunch experience.
