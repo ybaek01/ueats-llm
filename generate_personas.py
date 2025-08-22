@@ -5,7 +5,7 @@ Schema per object:
   id, condition, age, income, location, diet, accessibility, goal
 
 Usage:
-  python generate_personas.py --condition uniform --count 7
+  python generate_personas.py --condition uniform --count 5
   python generate_personas.py --condition diet --count 7
   python generate_personas.py --condition diverse --count 7
   # Custom file name:
@@ -16,74 +16,145 @@ from typing import List, Dict, Set, Optional
 
 # ----------------------------- Config ---------------------------------
 EAST_COAST = [
-    "Boston, MA","Cambridge, MA","New York, NY","Brooklyn, NY","Queens, NY",
-    "Jersey City, NJ","Newark, NJ","Philadelphia, PA","Baltimore, MD",
+    # MA
+    "Boston, MA","Cambridge, MA","Somerville, MA","Worcester, MA","Lowell, MA","Springfield, MA",
+    # CT / RI
+    "Hartford, CT","New Haven, CT","Stamford, CT","Providence, RI",
+    # NY / NJ
+    "New York, NY","Brooklyn, NY","Queens, NY","Bronx, NY","Staten Island, NY",
+    "Albany, NY","Buffalo, NY","Rochester, NY","Syracuse, NY",
+    "Jersey City, NJ","Newark, NJ","Hoboken, NJ",
+    # PA / MD / DC
+    "Philadelphia, PA","Pittsburgh, PA","Baltimore, MD","Towson, MD",
     "Washington, DC","Alexandria, VA","Arlington, VA","Richmond, VA",
-    "Raleigh, NC","Charlotte, NC","Charleston, SC","Savannah, GA",
-    "Atlanta, GA","Orlando, FL","Tampa, FL","Miami, FL","Gainesville, FL"
+    # NC / SC / GA
+    "Raleigh, NC","Durham, NC","Chapel Hill, NC","Charlotte, NC",
+    "Wilmington, NC","Charleston, SC","Savannah, GA","Atlanta, GA","Athens, GA",
+    # FL
+    "Orlando, FL","Tampa, FL","St. Petersburg, FL","Miami, FL","Fort Lauderdale, FL",
+    "Gainesville, FL","Jacksonville, FL","Tallahassee, FL"
 ]
 
 WORLDWIDE = [
-    "Seoul, KR","Busan, KR","Tokyo, JP","Kyoto, JP","Taipei, TW","Singapore, SG",
-    "Sydney, AU","Melbourne, AU","Auckland, NZ","London, UK","Manchester, UK",
-    "Paris, FR","Berlin, DE","Munich, DE","Toronto, CA","Vancouver, CA",
-    "Mexico City, MX","São Paulo, BR","Buenos Aires, AR","Istanbul, TR",
-    "Dubai, AE","Nairobi, KE","Cairo, EG","Johannesburg, ZA","Mumbai, IN",
-    "Bengaluru, IN","Jakarta, ID","Bangkok, TH","Hanoi, VN","Barcelona, ES",
-    "Rome, IT","Lisbon, PT"
+    # Korea / Japan / Taiwan / SEA
+    "Seoul, KR","Busan, KR","Incheon, KR","Daegu, KR","Daejeon, KR","Gwangju, KR",
+    "Tokyo, JP","Kyoto, JP","Osaka, JP","Fukuoka, JP","Sapporo, JP",
+    "Taipei, TW","Taichung, TW","Tainan, TW",
+    "Singapore, SG","Kuala Lumpur, MY","Jakarta, ID","Bandung, ID","Bangkok, TH","Chiang Mai, TH",
+    "Hanoi, VN","Ho Chi Minh City, VN","Manila, PH","Cebu, PH",
+    # China & HK
+    "Hong Kong, HK","Macau, MO","Shenzhen, CN","Guangzhou, CN","Shanghai, CN","Beijing, CN",
+    # ANZ
+    "Sydney, AU","Melbourne, AU","Brisbane, AU","Perth, AU","Adelaide, AU",
+    "Auckland, NZ","Wellington, NZ",
+    # Europe (West/North/South/East)
+    "London, UK","Manchester, UK","Birmingham, UK","Edinburgh, UK","Glasgow, UK",
+    "Paris, FR","Lyon, FR","Marseille, FR","Nice, FR",
+    "Berlin, DE","Munich, DE","Hamburg, DE","Cologne, DE","Frankfurt, DE",
+    "Zurich, CH","Geneva, CH","Vienna, AT","Prague, CZ","Budapest, HU","Warsaw, PL","Krakow, PL",
+    "Copenhagen, DK","Stockholm, SE","Oslo, NO","Helsinki, FI",
+    "Amsterdam, NL","Rotterdam, NL","Brussels, BE","Antwerp, BE",
+    "Madrid, ES","Barcelona, ES","Valencia, ES","Seville, ES",
+    "Rome, IT","Milan, IT","Florence, IT","Naples, IT",
+    "Lisbon, PT","Porto, PT","Athens, GR","Thessaloniki, GR",
+    # Middle East
+    "Istanbul, TR","Ankara, TR","Izmir, TR",
+    "Dubai, AE","Abu Dhabi, AE","Doha, QA","Kuwait City, KW","Manama, BH","Muscat, OM","Riyadh, SA","Jeddah, SA",
+    "Amman, JO","Beirut, LB","Tel Aviv, IL",
+    # Africa
+    "Cairo, EG","Alexandria, EG","Casablanca, MA","Rabat, MA","Tunis, TN",
+    "Nairobi, KE","Mombasa, KE","Kampala, UG","Addis Ababa, ET","Dar es Salaam, TZ",
+    "Lagos, NG","Abuja, NG","Accra, GH","Johannesburg, ZA","Cape Town, ZA",
+    # Americas
+    "Toronto, CA","Vancouver, CA","Montreal, CA","Ottawa, CA","Calgary, CA",
+    "Mexico City, MX","Guadalajara, MX","Monterrey, MX",
+    "São Paulo, BR","Rio de Janeiro, BR","Brasília, BR","Belo Horizonte, BR","Curitiba, BR","Porto Alegre, BR",
+    "Buenos Aires, AR","Córdoba, AR","Rosario, AR",
+    "Santiago, CL","Valparaíso, CL","Lima, PE","Cusco, PE",
+    "Bogotá, CO","Medellín, CO","Quito, EC","Guayaquil, EC",
+    "Montevideo, UY","Asunción, PY","La Paz, BO"
 ]
 
 STUDENT_INCOMES = [
     "work-study ($200/week)","campus dining (~$600/mo)","library aide (~$650/mo)",
-    "part-time barista (~$800/mo)","retail associate (~$900/mo)",
-    "RA stipend ($900/mo)","intern stipend ($1,200/mo)","tutoring (~$18/h, 6h/wk)"
+    "part-time barista (~$800/mo)","retail associate (~$900/mo)","RA stipend ($900/mo)",
+    "intern stipend ($1,200/mo)","tutoring (~$18/h, 6h/wk)","delivery rider (~$16/h, 8h/wk)",
+    "IT helpdesk (~$1,100/mo)","lab assistant (~$700/mo)","campus ambassador (~$500/mo)",
+    "freelance design (~$900/mo)","gig work (~$400/mo)","TA stipend (~$1,400/mo)"
 ]
 
 DIETS_CYCLIC = [
-    "vegan","vegetarian","halal","kosher","gluten-free",
-    "lactose-free","pescatarian","low-sodium","nut-free"
+    "vegan","vegetarian","pescatarian","halal","kosher",
+    "gluten-free","lactose-free","low-sodium","nut-free",
+    "soy-free","egg-free","shellfish-free","low-fat"
 ]
-DIETS_DIVERSE = DIETS_CYCLIC + ["none","low-carb","keto","low-FODMAP"]
+DIETS_DIVERSE = DIETS_CYCLIC + [
+    "none","low-carb","keto","low-FODMAP","paleo","whole30","diabetic-friendly","heart-healthy"
+]
 
-ACCESS_LIST_DIVERSE = ["none","screen-reader","large-text","colorblind"]
+ACCESS_LIST_DIVERSE = [
+    "none","screen-reader","large-text","colorblind",
+    "reduced-motion","dyslexia-friendly","motor-impairment","hearing-impaired"
+]
 
 FOODS = [
-    "burrito bowl","ramen","poke bowl","salad","wrap","sandwich","pizza",
-    "sushi set","noodle soup","rice bowl","grilled chicken bowl","falafel wrap",
-    "tacos","curry"
+    "burrito bowl","ramen","poke bowl","salad","wrap","sandwich","pizza","sushi set","noodle soup","rice bowl",
+    "grilled chicken bowl","falafel wrap","tacos","curry","bibimbap","katsu curry","gyudon","pho","banh mi",
+    "shawarma plate","hummus bowl","kebab wrap","mezze box","butter chicken","paneer tikka wrap","samosa combo",
+    "pad thai","green curry","laksa","kimchi stew combo","Japchae bowl","teriyaki bowl","yakisoba",
+    "grain bowl","cauliflower rice bowl","plant-based burger","veggie dumplings","poke burrito",
+    "southern fried chicken sandwich","fish and chips","carbonara","margherita pizza","sicilian slice",
+    "arepa","empanadas","ceviche bowl","poutine","smørrebrød"
 ]
+
 CUISINES = [
-    "Thai","Korean","Japanese","Mexican","Mediterranean",
-    "Indian","Italian","Vietnamese","American","Chinese","Middle Eastern"
+    "American","Southern","BBQ","Mexican","Tex-Mex","Peruvian","Brazilian","Argentinian","Colombian",
+    "Italian","Sicilian","Mediterranean","Middle Eastern","Turkish","Greek","Israeli","Lebanese",
+    "Indian","Pakistani","Bangladeshi","Sri Lankan","Nepalese",
+    "Thai","Vietnamese","Filipino","Indonesian","Malaysian","Singaporean",
+    "Korean","Japanese","Chinese","Taiwanese","Hong Kong",
+    "French","Spanish","Portuguese","German","Austrian","Swiss","Belgian","Dutch","Nordic"
 ]
 
-# 지역별 추천 요리 힌트(강제 아님)
 REGIONAL_CUISINE_HINTS = {
-  "US": ["American","Mexican","Italian","Chinese","Japanese","Mediterranean"],
-  "KR": ["Korean","Japanese","Chinese"],
-  "JP": ["Japanese","Korean"],
-  "AU": ["Japanese","Thai","Korean","Mediterranean","American"],
-  "NZ": ["Japanese","Mediterranean","American"],
-  "UK": ["Indian","Mediterranean","Chinese","Japanese","American"],
-  "CA": ["American","Chinese","Japanese","Mediterranean","Indian"],
-  "EU": ["Italian","Mediterranean","Vietnamese","Japanese","Indian"],
-  "SEA": ["Thai","Vietnamese","Japanese","Korean","Chinese","Mediterranean"],
-  "ME": ["Middle Eastern","Mediterranean","Indian"],
+  # North America
+  "US": ["American","Southern","BBQ","Mexican","Tex-Mex","Italian","Chinese","Japanese","Mediterranean","Korean"],
+  "CA": ["American","Chinese","Japanese","Mediterranean","Indian","French","Lebanese"],
+  # Europe
+  "UK": ["Indian","Mediterranean","Chinese","Japanese","American","Turkish"],
+  "EU": ["Italian","Mediterranean","Vietnamese","Japanese","Indian","Greek","Spanish","Portuguese","Turkish","Lebanese","Nordic"],
+  # East Asia
+  "KR": ["Korean","Japanese","Chinese","American","Mediterranean"],
+  "JP": ["Japanese","Korean","Chinese","Italian"],
+  "TW": ["Taiwanese","Japanese","Chinese","American"],
+  "HK": ["Hong Kong","Chinese","Japanese","Korean"],
+  # SE Asia / South Asia
+  "SEA": ["Thai","Vietnamese","Malaysian","Singaporean","Indonesian","Japanese","Korean","Chinese"],
+  "SA": ["Indian","Pakistani","Bangladeshi","Sri Lankan","Nepalese","Middle Eastern"],
+  # Middle East
+  "ME": ["Middle Eastern","Mediterranean","Turkish","Indian","Pakistani"],
+  # Latin America & Africa
+  "LATAM": ["Mexican","Peruvian","Brazilian","Argentinian","Colombian","Spanish","Portuguese"],
+  "AFR": ["Ethiopian","Moroccan","Tunisian","Egyptian","Nigerian","Ghanaian","South African","Lebanese","Turkish"]
 }
 
-# 소득대별 현실적 예산(달러)
 BUDGET_BY_INCOME = {
-  "low":  [8,9,10,11,12],
-  "mid":  [12,13,14,15,16,18],
-  "high": [15,16,18,20,22]
+  "very_low": [7,8,9,10],
+  "low":      [8,9,10,11,12],
+  "student":  [9,10,11,12,13],
+  "mid":      [12,13,14,15,16,18],
+  "high":     [15,16,18,20,22,24]
 }
 
-# 접근성 문구(Goal 후미에 붙는 자연스러운 요구사항)
 ACCESS_SUFFIX = {
   "none": "",
-  "screen-reader": " with clear labels",
-  "large-text": " with easy-to-read menus",
-  "colorblind": " with high-contrast design"
+  "screen-reader": " with clear, screen-reader-friendly labels",
+  "large-text": " with easy-to-read, larger menus",
+  "colorblind": " with high-contrast, non-color-only cues",
+  "reduced-motion": " with reduced motion and simple transitions",
+  "dyslexia-friendly": " with dyslexia-friendly fonts and spacing",
+  "motor-impairment": " with larger tap targets and fewer precise swipes",
+  "hearing-impaired": " with visual cues for status changes"
 }
 
 # -------------------------- LLM (optional) ----------------------------
@@ -96,7 +167,6 @@ if USE_OPENAI:
         USE_OPENAI = False
 
 def llm_goal_one(diet: str, location: str, delivery_or_pickup: str, budget: int, access: str) -> str:
-    """LLM 사용 가능 시 간결/일관된 목표문 생성. 없으면 빈 문자열 반환."""
     if not USE_OPENAI:
         return ""
     prompt = (
@@ -108,7 +178,7 @@ def llm_goal_one(diet: str, location: str, delivery_or_pickup: str, budget: int,
     )
     try:
         r = oai_client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="gpt-5-mini",
             messages=[{"role":"user","content":prompt}],
             temperature=0.6
         )
@@ -171,7 +241,6 @@ def _valid_goal(g: str) -> bool:
 
 def unique_goal(diet: str, location: str, income: str, access: str, used: Set[str]) -> str:
     for _ in range(8):
-        # 항상 "Order ..."로 시작하도록 통일
         mode = _mode()
         budget = random.choice(BUDGET_BY_INCOME[_income_band(income)])
         g = llm_goal_one(diet, location, mode, budget, access)

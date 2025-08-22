@@ -101,7 +101,7 @@ source venv/bin/activate<br>
 code .
 
 1) Generate Uniform<br>
-python generate_personas.py --condition uniform --count 7
+python generate_personas.py --condition uniform --count 5
 
 2) Generate Diet-only<br>
 python generate_personas.py --condition diet --count 7
@@ -110,13 +110,70 @@ python generate_personas.py --condition diet --count 7
 python generate_personas.py --condition diverse --count 7
 
 4) Run Uniform<br>
-python run_operators.py --personas personas_uniform.json --output runs/uniform
+python run_operators.py \
+  --personas personas_uniform.json \
+  --output runs/uniform \
+  --agent_model gpt-5-mini \
+  --analysis_model gpt-5 \
+  --rewrite_model gpt-5-mini --rewrite_temp 0.9 \
+  --agent_temp 0.40 \
+  --analysis_temp 1.0 \
+  --dom_chars 3500 --use_history --history_k 6 \
+  --dedupe_against_existing \
+  --unique_minor_global --min_unique_minor 2 \
+  --diversify_threshold 0.75 --diversify_retries 4 \
+  --ngram_n 5 \
+  --stop_markers "your cart,review order,review your order,cart subtotal,summary" \
+  --goto_timeout_ms 120000 --retry_goto 2 \
+  --concurrency 2 \
+  --score_bias 0.6 \
+  --humanize --humanize_intensity 1 \
+  --seed 101
+
 
 5) Run Diet-only<br>
-python run_operators.py --personas personas_diet.json --output runs/diet
+python run_operators.py \
+  --personas personas_diet.json \
+  --output runs/diet \
+  --agent_model gpt-5-mini \
+  --analysis_model gpt-5 \
+  --rewrite_model gpt-5-mini --rewrite_temp 0.9 \
+  --agent_temp 0.40 \
+  --analysis_temp 1.0 \
+  --dom_chars 3500 --use_history --history_k 6 \
+  --dedupe_against_existing \
+  --unique_minor_global --min_unique_minor 2 \
+  --diversify_threshold 0.75 --diversify_retries 4 \
+  --ngram_n 5 \
+  --stop_markers "your cart,review order,review your order,cart subtotal,summary" \
+  --goto_timeout_ms 120000 --retry_goto 2 \
+  --concurrency 2 \
+  --score_bias 0.6 \
+  --humanize --humanize_intensity 1 \
+  --seed 102
+
 
 6) Run Fully-diverse<br>
-python run_operators.py --personas personas_diverse.json --output runs/diverse
+python run_operators.py \
+  --personas personas_diverse.json \
+  --output runs/diverse \
+  --agent_model gpt-5-mini \
+  --analysis_model gpt-5 \
+  --rewrite_model gpt-5-mini --rewrite_temp 0.9 \
+  --agent_temp 0.40 \
+  --analysis_temp 1.0 \
+  --dom_chars 3500 --use_history --history_k 6 \
+  --dedupe_against_existing \
+  --unique_minor_global --min_unique_minor 2 \
+  --diversify_threshold 0.75 --diversify_retries 4 \
+  --ngram_n 5 \
+  --stop_markers "your cart,review order,review your order,cart subtotal,summary" \
+  --goto_timeout_ms 120000 --retry_goto 2 \
+  --concurrency 2 \
+  --score_bias 0.6 \
+  --humanize --humanize_intensity 1 \
+  --seed 103
+
 
 7) Merge PDF<br>
 python compose_report.py --input runs --pdf consolidated_report.pdf
