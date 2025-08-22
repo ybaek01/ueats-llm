@@ -1,11 +1,11 @@
-# run.py  (Final Persona-centric runner)
-# - English report; PRE-CHECKOUT ONLY (never click Pay/Checkout)
-# - Persona-centered analysis (diet/allergen/accessibility/budget)
-# - Global de-dup / diversity across sessions (What Worked Well / Minor / Suggestions)
-# - Score bias knob to target ~3–4 average
-# - Spacing: exactly 1 blank line between "Minor Friction" and "Suggested Improvements"
-# - OpenAI compat: auto-strip unsupported params on gpt-5 family; max_tokens->max_completion_tokens
-# - ENV: OPENAI_API_KEY
+# run_operators.py  (FINAL)
+# - Uber Eats mobile (iPhone) UX agent + persona-based analysis (English reports)
+# - PRE-CHECKOUT ONLY (never click Pay / Checkout / Apple Pay / Place order)
+# - Human-centered issues first; network talk minimized
+# - Sections: Persona / What Worked Well / Critical Issues / Minor Friction / Suggested Improvements
+# - Strong de-dup: global per-section stores + intra-section unique + cooldown
+# - Dynamic axis suggestions (target 30/axis) + rewrite for variety
+# - GPT-5 param guard (no top_p, etc.), max_tokens→max_completion_tokens auto-map
 
 import argparse, asyncio, json, pathlib, random, re, time, difflib
 from typing import Dict, Any, List, Optional, Tuple, Set
@@ -14,16 +14,10 @@ from openai import AsyncOpenAI, BadRequestError
 
 client = AsyncOpenAI()
 
-# ---------------------------
-# Defaults / Globals
-# ---------------------------
 MAX_STEPS_DEFAULT = 60
 PROHIBITED_CLICK_PAT = re.compile(r"(place\s*order|apple\s*pay|google\s*pay|\bpay\b|\bcheckout\b)", re.I)
 GLOBAL_STOP_MARKERS: List[str] = ["your cart", "review order", "review your order", "cart subtotal", "summary"]
 
-# ---------------------------
-# Prompts
-# ---------------------------
 COMPACT_SYSTEM = """
 You are a mobile UX agent on Uber Eats (iPhone). Output STRICT JSON only:
 {"action":"click|type|wait_ms|wait_for|note","selector":"<css|text>","text":"<opt>","ms":<opt>,"state":"<opt>","tag":"<opt>","detail":"<opt>"}
@@ -32,7 +26,7 @@ Rules:
 - PRE-CHECKOUT ONLY. NEVER click: "Place order", "Pay", "Apple Pay", "Checkout".
 - Prefer state waits: wait_for {state: visible|attached|hidden|detached} (≤1500ms).
   wait_ms only if necessary (avoid exactly 500ms; prefer 350ms or 700ms).
-- Parse persona to see if a price budget exists (e.g., "under $12"). If an item exceeds budget,
+- Parse persona for budget (e.g., "under $12"). If an item exceeds budget,
   emit: {"action":"note","tag":"budget_over","detail":"$14 > $12 target"}; if within budget, emit "budget_met".
 - Use diet/allergen filters/search; verify item details vs persona needs.
 - On human-centered issues, emit ONE note(tag in: diet_mismatch, allergen_missing, filter_missing,
@@ -43,50 +37,39 @@ Think step-by-step silently. OUTPUT JSON ONLY.
 """.strip()
 
 ANALYSIS_SYSTEM = r"""
-You are a meticulous UX auditor. Analyze the session 'history' AS the persona.
-Focus on human-centered issues that relate to THIS persona’s constraints:
-- diet & allergen needs (vegan/vegetarian/halal/kosher; gluten/nut/soy/lactose/shellfish/egg-free)
-- accessibility (screen-reader, large-text, colorblind, reduced-motion, motor/hearing)
-- budget fit (under $N if present in goal)
-
-Prefer concrete evidence from 'history' notes (diet_mismatch, allergen_missing, filter_missing, aria_missing, contrast_low, tiny_tap_target, fee_transparency). 
-Avoid discussing milliseconds/network unless it prevented reaching pre-checkout review. 
-If no meaningful critical issue is evident, write "None observed." and praise what worked.
+You are a meticulous UX auditor. Analyze the session 'history' AS the persona (English output).
+Focus on human-centered issues related to THIS persona’s constraints (diet/allergen/accessibility/budget).
+Avoid network latency unless repeated or >2s; the test stops before real checkout. If no critical issue, say "None observed."
 
 Return STRICT JSON with EXACTLY three string keys: "score", "description", "markdown".
-- "score": one of {"1","2","3","4","5"} (integer string). If the flow respected the persona’s constraints and reached pre-checkout, use "5" unless there is a clear human-centered issue.
-- "description": ONE line in English that explicitly references the persona’s constraint(s), e.g.,
-  "<age>yo in <location> (<income>; vegan/large-text); goal: <goal>."
-- "markdown": <=200 words in English, first-person voice, with EXACT headers:
+- "score": one of {"1","2","3","4","5"} (integer string). If pre-checkout reached and constraints respected, prefer "5".
+- "description": ONE line referencing persona constraints, e.g., "<age>yo in <location> (<income>; vegan/large-text); goal: <goal>."
+- "markdown": <=200 words, first-person, headers exactly:
 
 ## Persona
-Who I am and what I tried to do. Explicitly mention my diet/allergen or accessibility and any budget target.
+(plain)
 
 ## What Worked Well
-1–3 bullets that tie to my constraints (e.g., diet badges accurate, allergen flags visible, budget clear, accessible labels).
+(bullets, tie to my constraints)
 
 ## Critical Issues
-ONE most impactful, human-centered issue with a pointer to a matching 'history' note (e.g., "step 12 note: diet_mismatch — ...").
-If none, write "None observed." and mention what went well related to my constraints.
+(ONE most impactful issue pointing to a 'history' note, e.g., "step 12 note: diet_mismatch — …"; or "None observed.")
 
 ## Minor Friction
-1–3 minor annoyances (avoid generic phrasing).
+(1–3 bullets, concrete, not generic)
 
 ## Suggested Improvements
-1–3 concrete, persona-tailored fixes (diet/allergen badges, accessible labels, budget caps, etc.).
+(1–3 bullets, persona-tailored, concrete)
 """
 
 REWRITE_SYSTEM = """
 You are a UX report rewriter. Rewrite the given markdown to avoid overlapping wording with prior reports.
-Keep the same structure and headers exactly (## Persona, ## What Worked Well, ## Critical Issues, ## Minor Friction, ## Suggested Improvements),
-stay under 200 words, preserve the same facts and evidence (including budget status), but use different wording and phrasing.
-Use light contractions and natural transitions; vary verbs to reduce template-like tone.
-Avoid all phrases in the FORBIDDEN list. Output ONLY the markdown (no JSON, no code fences).
+Keep the same structure and headers (## Persona, ## What Worked Well, ## Critical Issues, ## Minor Friction, ## Suggested Improvements),
+stay under 200 words, preserve the same facts and evidence, but use different wording and light contractions.
+Output ONLY the markdown (no JSON).
 """.strip()
 
-# ---------------------------
-# OpenAI wrapper (hardened)
-# ---------------------------
+# ---------------- Param guards (GPT-5 family) ----------------
 def _normalize_token_arg(model: str, params: dict, default_tokens: int):
     token_val = params.pop("max_tokens", default_tokens)
     if any(k in model.lower() for k in ("gpt-5", "o3", "o4")):
@@ -144,33 +127,38 @@ async def chat_create_safe(model: str, messages,
             nonlocal cleaned
             if k in params: params.pop(k, None); cleaned = True
 
-        if "temperature" in msg:          drop("temperature")
-        if "top_p" in msg:                drop("top_p")
-        if "presence_penalty" in msg:     drop("presence_penalty")
-        if "frequency_penalty" in msg:    drop("frequency_penalty")
-        if "response_format" in msg or "json_object" in msg: drop("response_format")
+        for k in ("temperature","top_p","presence_penalty","frequency_penalty","response_format"):
+            if k in params and (k in msg or "unsupported" in msg.lower()):
+                drop(k)
         _normalize_token_arg(model, params, max_tokens)
         if cleaned:
             return await _try(params)
-
         for k in list(params.keys()):
-            if k in ("max_tokens", "max_completion_tokens"): continue
+            if k in ("max_tokens","max_completion_tokens"): continue
             if f"'{k}'" in msg or "unsupported" in msg.lower():
                 drop(k)
         _normalize_token_arg(model, params, max_tokens)
         return await _try(params)
 
-# ---------------------------
-# Text utils / similarity
-# ---------------------------
-_WS = re.compile(r"\s+")
-_PUNCT = re.compile(r"[^\w\s\-]+")
+# ---------------- Similarity / normalization ----------------
+_STOPWORDS = set("the a an to for of on in at by with and or but so that as is are was were be been being it this those these my your our their from into over under within before after between across".split())
+
+def _simple_stem(w: str) -> str:
+    w = w.lower()
+    for suf in ("ing","ed","ly","es","s"):
+        if w.endswith(suf) and len(w) > len(suf)+2:
+            w = w[: -len(suf)]
+    return w
 
 def normalize_line(s: str) -> str:
     s = s.strip().lower()
-    s = _PUNCT.sub("", s)
-    s = _WS.sub(" ", s)
-    return s.strip()
+    s = re.sub(r"[^\w\s\-]+", "", s)
+    toks = [t for t in s.split() if t and t not in _STOPWORDS]
+    toks = [_simple_stem(t) for t in toks]
+    return " ".join(toks).strip()
+
+def char_sim_ratio(a: str, b: str) -> float:
+    return difflib.SequenceMatcher(a=a.lower(), b=b.lower()).ratio()
 
 def tokens(s: str) -> List[str]:
     return [t for t in normalize_line(s).split() if t]
@@ -185,6 +173,11 @@ def jaccard(a: Set, b: Set) -> float:
     inter = len(a & b); union = len(a | b)
     return inter / union if union else 0.0
 
+def combined_similar(a: str, b: str, *, n: int = 4, j_thresh: float = 0.70, c_thresh: float = 0.82) -> bool:
+    tj = jaccard(ngrams(tokens(a), n=n), ngrams(tokens(b), n=n))
+    cr = char_sim_ratio(a, b)
+    return (tj >= j_thresh) or (cr >= c_thresh)
+
 def sim_against_corpus(text: str, corpus_texts: List[str], n: int = 4) -> float:
     t = ngrams(tokens(text), n=n)
     best = 0.0
@@ -193,11 +186,139 @@ def sim_against_corpus(text: str, corpus_texts: List[str], n: int = 4) -> float:
         if s > best: best = s
     return best
 
-# ---------------------------
-# Persona helpers / pools
-# ---------------------------
+# ---------------- Small helpers ----------------
+def digest_dom(html: str, max_chars: int) -> str:
+    return (html or "")[:max_chars]
+
+def digest_persona(p: Dict[str, Any]) -> str:
+    return (f"{p.get('age','?')}yo, {p.get('location','?')}, "
+            f"{p.get('income','?')}; diet={p.get('diet','none')}, "
+            f"accessibility={p.get('accessibility','none')}; goal={p.get('goal','n/a')}")
+
+def digest_history(hist: List[Dict[str, Any]], k: int) -> str:
+    if not hist or k <= 0: return "None"
+    slim = []
+    for h in hist[-k:]:
+        if 'action' in h:
+            a = h['action']
+            if a in ('click','type'):
+                slim.append({"step": h.get("step"), "action": a, "selector": (h.get("selector") or "")[:80]})
+            elif a in ('wait','wait_ms'):
+                slim.append({"step": h.get("step"), "action": a})
+            elif a == 'wait_for':
+                slim.append({"step": h.get("step"), "action": a, "state": h.get("state")})
+            elif a == "note":
+                slim.append({"step": h.get("step"), "note": f"{h.get('tag')}::{(h.get('detail') or '')[:80]}"})
+        elif 'error' in h:
+            slim.append({"step": h.get("step"), "error": (h.get("error") or "")[:80]})
+        elif 'warn' in h:
+            slim.append({"step": h.get("step"), "warn": (h.get("warn") or "")[:80]})
+        elif 'info' in h:
+            slim.append({"step": h.get("step"), "info": (h.get("info") or "")[:80]})
+    return json.dumps(slim, ensure_ascii=False)
+
+def sha_seed(text: str) -> int:
+    import hashlib as _h
+    return int(_h.sha256(text.encode("utf-8")).hexdigest()[:16], 16)
+
+def rng_for_persona(persona: Dict[str, Any]) -> random.Random:
+    pid = persona.get("id") or json.dumps(persona, sort_keys=True)
+    return random.Random(sha_seed(pid))
+
+def enforce_spacing_exact_one(md: str) -> str:
+    headers = ["## What Worked Well","## Critical Issues","## Minor Friction","## Suggested Improvements"]
+    for h in headers:
+        md = re.sub(rf"\n*(?={re.escape(h)})", "\n", md)
+        md = md.replace("\n" + h, "\n\n" + h)
+        md = re.sub(rf"\n\n\n+{re.escape(h)}", "\n\n" + h, md)
+    md = re.sub(r"(\n## Minor Friction\n(?:.*?))\n\n+(## Suggested Improvements)", r"\1\n\n\2", md, flags=re.S)
+    return md.strip() + "\n"
+
+# ---------------- Persona / signals ----------------
 ALLERGEN_KEYWORDS = ["gluten-free","nut-free","soy-free","lactose-free","shellfish-free","egg-free","low-sodium"]
 STRICT_DIET = ["vegan","vegetarian","pescatarian","halal","kosher"]
+
+def persona_profile(p: Dict[str, Any]) -> Dict[str, Any]:
+    diet = (p.get("diet") or "").strip().lower()
+    acc  = (p.get("accessibility") or "").strip().lower()
+    has_allergen = any(k in diet for k in ALLERGEN_KEYWORDS)
+    is_strict    = any(diet.startswith(sd) for sd in STRICT_DIET)
+    return {
+        "diet": diet,
+        "access": acc,
+        "has_allergen": has_allergen,
+        "is_strict_diet": is_strict,
+        "is_none_diet": (diet in ("", "none")),
+        "acc_is_screenreader": ("screen" in acc),
+        "acc_is_largetext": ("large-text" in acc),
+        "acc_is_colorblind": ("colorblind" in acc),
+    }
+
+def collect_signals(history: List[Dict[str, Any]]) -> Dict[str, Any]:
+    errors = [h for h in history if "error" in h]
+    warns  = [h for h in history if "warn" in h]
+    timeouts = [h for h in warns if "timeout" in h.get("warn", "")]
+    steps = sum(1 for h in history if "action" in h)
+    waits = [h for h in history if h.get("action") in ("wait","wait_ms")]
+    long_waits = sum(1 for w in waits if int(w.get("ms", 0)) >= 1500)
+
+    notes = [h for h in history if h.get("action") == "note"]
+    severe_tags = {"diet_mismatch","allergen_missing","filter_missing","aria_missing","contrast_low","tiny_tap_target"}
+    severe_notes = [n for n in notes if (n.get("tag") in severe_tags)]
+    budget_met = any(n.get("tag") == "budget_met" for n in notes)
+    budget_over = any(n.get("tag") == "budget_over" for n in notes)
+    milestones = {n.get("tag") for n in notes if str(n.get("tag","")).startswith("milestone_")}
+
+    return {
+        "errors": len(errors), "warns": len(warns), "timeouts": len(timeouts),
+        "steps": steps, "long_waits": long_waits,
+        "notes_severe": len(severe_notes),
+        "budget_met": budget_met, "budget_over": budget_over,
+        "m_item": ("milestone_item_added" in milestones),
+        "m_cart": ("milestone_cart_open" in milestones),
+        "m_review": ("milestone_review" in milestones),
+        "prechk_stop": any(h.get("info") == "stop_precheckout" for h in history),
+    }
+
+def score_from_signals(sig: Dict[str, Any], rng: random.Random, weights: Optional[Dict[str, float]] = None) -> int:
+    reached = sig["m_review"] or sig.get("prechk_stop")
+    if reached and sig["notes_severe"] == 0 and sig["errors"] == 0 and sig["timeouts"] == 0 and sig["long_waits"] == 0 and (sig["budget_met"] or not sig["budget_over"]):
+        base = 5
+    elif reached:
+        base = 4
+    elif sig["m_cart"] and sig["m_item"]:
+        base = 4
+    elif sig["m_item"]:
+        base = 3
+    else:
+        base = 2 if (sig["errors"] or sig["steps"] > 25) else 3
+
+    w = weights or {}
+    base += w.get("reached_review_bonus", 0) if reached else 0
+    base += w.get("w_severe", -1) * min(2, sig["notes_severe"])
+    base += w.get("w_timeout", -1) * sig["timeouts"]
+    base += w.get("w_longwait", -1) * sig["long_waits"]
+    base += w.get("w_budget_over", -1) * (1 if sig["budget_over"] else 0)
+    base += w.get("w_budget_met", 1) * (1 if sig["budget_met"] else 0)
+    jitter = rng.choice([0, 0, 0, +1])
+    base = max(1, min(5, base + jitter))
+    return int(base)
+
+# ---------------- Pools (positives/minor/improvements) ----------------
+POSITIVES_POOL = [
+    "Diet filters surfaced early and felt dependable.",
+    "Clear badges let me verify restrictions at a glance.",
+    "Search results aligned with my intent without much tweaking.",
+    "The add-to-cart step was straightforward and snappy.",
+    "Prices were visible soon enough to guide choices.",
+    "Delivery and service fees appeared before review.",
+    "Labels and micro-copy made comparisons quick.",
+    "Add-ons were present but didn’t derail my task.",
+    "I reached review quickly with minimal detours.",
+    "Cuisine and diet chips combined to narrow choices fast.",
+    "Portion and price info appeared on cards when I needed them.",
+    "Saved filters persisted across screens during my session."
+]
 
 MINOR_CATEGORY_POOLS: Dict[str, List[str]] = {
     "too_many_taps": [
@@ -241,7 +362,7 @@ MINOR_CATEGORY_POOLS: Dict[str, List[str]] = {
         "It took effort to confirm allergen safety at a glance."
     ],
     "aria_accessibility": [
-        "Filter chips lacked clear screen-reader cues.",
+        "Some filter chips didn’t sound distinct to screen readers.",
         "Important state changes weren’t announced to assistive tech."
     ],
     "contrast_low": [
@@ -259,204 +380,194 @@ MINOR_CATEGORY_POOLS: Dict[str, List[str]] = {
     "price_sorting": [
         "Sorting by price/budget required extra steps.",
         "Cheapest options weren’t easy to bring to the top."
+    ],
+    "info_density": [
+        "Some cards packed many elements, slowing quick scanning.",
+        "Dense layouts made it harder to spot key diet details."
+    ],
+    "redundant_steps": [
+        "I repeated similar confirmations across two screens.",
+        "I hit the same choice twice before seeing the cart."
+    ],
+    "thumb_reach": [
+        "Primary actions occasionally sat outside comfortable thumb reach.",
+        "Important toggles landed too near the screen’s top edge."
     ]
 }
 
 SUGGESTION_POOLS = {
     "too_many_taps": [
         "Combine related steps so I reach review faster.",
-        "Compress confirmations into a single clear step.",
+        "Compress confirmations into a single clear step."
     ],
     "filter_discoverability": [
-        "Surface diet/price chips at the top of the listing.",
-        "Make filter entry points more prominent than sort.",
+        "Surface diet and price chips at the top of the listing.",
+        "Make filter entry points more prominent than sort."
     ],
     "label_ambiguity": [
         "Align naming between list cards and item details.",
-        "Add short descriptors to distinguish similar options.",
+        "Add short descriptors to distinguish similar options."
     ],
     "loading_feedback": [
         "Show a clear applied state when filters update.",
-        "Add a brief toast to confirm changes took effect.",
+        "Add a brief toast to confirm changes took effect."
     ],
     "stall": [
         "Provide a subtle skeleton/loading cue during updates.",
-        "Allow quick ‘retry’ if a panel doesn’t open promptly.",
+        "Allow quick ‘retry’ if a panel doesn’t open promptly."
     ],
     "fee_transparency": [
         "Expose estimated fees on the listing cards earlier.",
-        "Show a toggle to include fees in the price preview.",
+        "Show a toggle to include fees in the price preview."
     ],
     "upsell_pressure": [
         "Tuck add-ons behind a ‘Customize’ affordance by default.",
-        "Reduce the frequency/size of upsell prompts pre-checkout.",
+        "Reduce the frequency and size of upsell prompts pre-checkout."
     ],
     "diet_badges": [
-        "Standardize vegan/vegetarian badges on list & item pages.",
-        "Add dedicated diet chips filterable at the top bar.",
+        "Standardize vegan/vegetarian badges on list and item pages.",
+        "Add dedicated diet chips filterable at the top bar."
     ],
     "allergen_flags": [
         "Introduce at-a-glance allergen chips on item cards.",
-        "Place a prominent allergen section near the ‘Add’ button.",
+        "Place a prominent allergen section near the ‘Add’ button."
     ],
     "aria_accessibility": [
         "Announce filter state changes to screen readers.",
-        "Add ARIA labels for chips and selected states.",
+        "Add clear ARIA labels for chips and selected states."
     ],
     "contrast_low": [
         "Increase contrast for badges and selected states.",
-        "Avoid color-only signals; add icons or underlines.",
+        "Avoid color-only signals; add icons or underlines."
     ],
     "tap_target_small": [
         "Enlarge tap targets for chips and add-on toggles.",
-        "Increase spacing to reduce accidental taps.",
+        "Increase spacing to reduce accidental taps."
     ],
     "budget_visibility": [
         "Let me set a hard price cap before seeing results.",
-        "Add a ‘Under my budget’ quick filter on the list.",
+        "Add an ‘Under my budget’ quick filter on the list."
     ],
     "price_sorting": [
         "Offer a one-tap ‘Cheapest first’ sorting.",
-        "Expose delivery-included totals in card prices.",
+        "Expose delivery-included totals in card prices."
+    ],
+    "info_density": [
+        "Reduce visual density on cards; elevate the most decision-critical info.",
+        "Allow hiding secondary metadata until expanded."
+    ],
+    "redundant_steps": [
+        "Merge duplicate confirmations into a single, explicit step.",
+        "Skip repeated choices by remembering recent selections."
+    ],
+    "thumb_reach": [
+        "Keep primary actions within thumb zone on mobile.",
+        "Anchor filter chips near the bottom for easier reach."
     ],
 }
 
-POSITIVES_POOL = [
-    "Diet filters were easy to discover and felt trustworthy.",
-    "Clear badges helped me confirm diet restrictions quickly.",
-    "Search results matched my intent without much trial and error.",
-    "The add-to-cart flow felt straightforward and predictable.",
-    "Price information was surfaced early enough to guide choices.",
-    "Delivery estimates and fees were visible before the review.",
-    "Labels and short descriptions made comparisons quick.",
-    "Add-on prompts were present but not overwhelming.",
-    "I could reach the review/cart quickly with few detours."
-]
+SUGGESTIONS_AXIS = {
+  "vegan": [
+    "Add a 'strict vegan only' toggle that removes items with dairy or eggs by default.",
+    "Show a plant-based certification badge with a short tooltip explaining criteria.",
+    "Offer a 'swap to vegan protein' quick action on item cards."
+  ],
+  "vegetarian": [
+    "Label rennet and gelatin clearly; provide veggie-safe cheese info on item pages.",
+    "Provide a one-tap 'vegetarian only' filter at the top bar."
+  ],
+  "halal": [
+    "Display a ‘Halal-certified’ badge with cert body and inspection date on the item.",
+    "Add a 'no alcohol in preparation' note where applicable."
+  ],
+  "kosher": [
+    "Surface kosher certification with meat/dairy/pareve classification at a glance.",
+    "Add a 'kosher kitchens near me' smart filter on the listing."
+  ],
+  "gluten-free": [
+    "Show cross-contact warnings near the 'Add' button instead of deep in details.",
+    "Offer a 'gluten-free crust' quick switch on pizza cards."
+  ],
+  "lactose-free": [
+    "Add 'swap dairy to lactose-free' options inline with price delta.",
+    "Expose lactose content in sauces and cheeses with tiny info chips."
+  ],
+  "pescatarian": [
+    "Provide a 'seafood-only' facet and mark items cooked on shared grills."
+  ],
+  "low-sodium": [
+    "Expose sodium estimates on cards; add a '≤ X mg' quick cap."
+  ],
+  "nut-free": [
+    "Highlight nut-free prep and shared-facility warnings right by the 'Add' button."
+  ],
+  "low-carb": [
+    "Offer 'low-carb swaps' (cauli rice, lettuce wrap) inline on the card."
+  ],
+  "keto": [
+    "Show net carbs per item and add a '≤ N g net carbs' toggle up top."
+  ],
+  "low-FODMAP": [
+    "Flag high-FODMAP ingredients with an icon and offer low-FODMAP swaps."
+  ],
+  "screen-reader": [
+    "Ensure ARIA names on primary actions (e.g., 'Add to cart: <item>').",
+    "Announce price and fee updates via live regions when filters change."
+  ],
+  "large-text": [
+    "Provide a persistent text-size control the site remembers.",
+    "Avoid truncation; wrap long item names instead of ellipsizing."
+  ],
+  "colorblind": [
+    "Never rely on color alone; add icons and labels for selected chips.",
+    "Increase contrast for price and fee chips per WCAG AA."
+  ],
+  "motor-impairment": [
+    "Use large primary 'Add' buttons instead of tiny plus icons; reduce precise swipes.",
+    "Keep important actions within thumb zone on mobile."
+  ],
+  "reduced-motion": [
+    "Offer a 'reduced motion' preference that also disables skeleton shimmer loops."
+  ],
+  "dyslexia-friendly": [
+    "Provide a dyslexia-friendly font option and 1.5x line spacing on menus."
+  ],
+  "budget": [
+    "Expose an 'Under $<budget>' cap as a top chip that includes fees in the preview.",
+    "Show fees-included totals on listing cards, not just at review."
+  ],
+  "nav": [
+    "Pin 'Filters' above 'Sort' on mobile and remember last-used facets.",
+    "Add cuisine × diet quick chips (e.g., Vegan × Thai) at the top."
+  ],
+  "generic": [
+    "Add a 'Save for later' option to reduce decision pressure.",
+    "Provide a 'Compare' mode for two items with key differences highlighted."
+  ],
+}
 
-# ---------------------------
-# Small helpers
-# ---------------------------
-def digest_dom(html: str, max_chars: int) -> str:
-    return (html or "")[:max_chars]
+# ---------------- Global used stores & cooldown ----------------
+def _load_used_set(root: pathlib.Path, fname: str) -> Set[str]:
+    f = root / fname
+    if f.exists():
+        try: return set(json.loads(f.read_text(encoding="utf-8")))
+        except Exception: return set()
+    return set()
 
-def digest_persona(p: Dict[str, Any]) -> str:
-    return (f"{p.get('age','?')}yo, {p.get('location','?')}, "
-            f"{p.get('income','?')}; diet={p.get('diet','none')}, "
-            f"accessibility={p.get('accessibility','none')}; goal={p.get('goal','n/a')}")
+def _save_used_set(root: pathlib.Path, fname: str, used: Set[str]):
+    (root / fname).write_text(json.dumps(sorted(list(used)), ensure_ascii=False, indent=2), encoding="utf-8")
 
-def digest_history(hist: List[Dict[str, Any]], k: int) -> str:
-    if not hist or k <= 0: return "None"
-    slim = []
-    for h in hist[-k:]:
-        if 'action' in h:
-            a = h['action']
-            if a in ('click','type'):
-                slim.append({"step": h.get("step"), "action": a, "selector": (h.get("selector") or "")[:80]})
-            elif a in ('wait','wait_ms','wait_for'):
-                slim.append({"step": h.get("step"), "action": a})
-            elif a == 'note':
-                slim.append({"step": h.get("step"), "note": f"{h.get('tag')}::{(h.get('detail') or '')[:80]}"})
-        elif 'error' in h:
-            slim.append({"step": h.get("step"), "error": (h.get("error") or "")[:80]})
-        elif 'warn' in h:
-            slim.append({"step": h.get("step"), "warn": (h.get("warn") or "")[:80]})
-        elif 'info' in h:
-            slim.append({"step": h.get("step"), "info": (h.get("info") or "")[:80]})
-    return json.dumps(slim, ensure_ascii=False)
+def _load_used_counts(root: pathlib.Path, fname: str) -> Dict[str,int]:
+    f = root / fname
+    if f.exists():
+        try: return dict(json.loads(f.read_text(encoding="utf-8")))
+        except Exception: return {}
+    return {}
 
-def sha_seed(text: str) -> int:
-    import hashlib as _h
-    return int(_h.sha256(text.encode("utf-8")).hexdigest()[:16], 16)
+def _save_used_counts(root: pathlib.Path, fname: str, d: Dict[str,int]):
+    (root / fname).write_text(json.dumps(d, ensure_ascii=False, indent=2), encoding="utf-8")
 
-def rng_for_persona(persona: Dict[str, Any]) -> random.Random:
-    pid = persona.get("id") or json.dumps(persona, sort_keys=True)
-    return random.Random(sha_seed(pid))
-
-def extract_section(md: str, header: str) -> str:
-    lines = md.splitlines()
-    out, on = [], False
-    for ln in lines:
-        if ln.strip().startswith("## "):
-            on = (ln.strip() == header)
-            continue
-        if on: out.append(ln)
-    return "\n".join(out).strip()
-
-def extract_bullets(md: str, header: str) -> List[str]:
-    sec = extract_section(md, header)
-    out = []
-    for ln in sec.splitlines():
-        if ln.strip().startswith("- "):
-            out.append(ln.strip()[2:].strip())
-    return out
-
-def replace_section(md: str, header: str, new_body_lines: List[str]) -> str:
-    lines = md.splitlines()
-    res = []
-    i = 0
-    while i < len(lines):
-        if lines[i].strip() == header:
-            res.append(lines[i])
-            i += 1
-            while i < len(lines) and not lines[i].strip().startswith("## "):
-                i += 1
-            for nb in new_body_lines:
-                res.append(nb)
-            continue
-        res.append(lines[i]); i += 1
-    return "\n".join(res)
-
-def enforce_spacing_exact_one(md: str) -> str:
-    # 섹션 헤더 앞뒤 공백을 정리, 특히 Minor ↔ Suggested 사이는 정확히 1줄
-    headers = ["## What Worked Well","## Critical Issues","## Minor Friction","## Suggested Improvements"]
-    for h in headers:
-        md = re.sub(rf"\n*(?={re.escape(h)})", "\n", md)
-        md = md.replace("\n" + h, "\n\n" + h)  # 헤더 앞 최소 1개
-        md = re.sub(rf"\n\n\n+{re.escape(h)}", "\n\n" + h, md)  # 2개 초과 금지
-    # Minor 뒤 공백 1줄로 고정
-    md = re.sub(r"(\n## Minor Friction\n(?:.*?))\n\n+(## Suggested Improvements)", r"\1\n\n\2", md, flags=re.S)
-    return md.strip() + "\n"
-
-# ---------------------------
-# Persona interpretation
-# ---------------------------
-def persona_profile(p: Dict[str, Any]) -> Dict[str, Any]:
-    diet = (p.get("diet") or "").strip().lower()
-    acc  = (p.get("accessibility") or "").strip().lower()
-    has_allergen = any(k in diet for k in ALLERGEN_KEYWORDS)
-    is_strict    = any(diet.startswith(sd) for sd in STRICT_DIET)
-    return {
-        "diet": diet,
-        "access": acc,
-        "has_allergen": has_allergen,
-        "is_strict_diet": is_strict,
-        "is_none_diet": (diet in ("", "none")),
-        "acc_is_screenreader": ("screen" in acc),
-        "acc_is_largetext": ("large-text" in acc),
-        "acc_is_colorblind": ("colorblind" in acc),
-    }
-
-def persona_toned_positive(sig: Dict[str, Any], prof: Dict[str, Any]) -> List[str]:
-    out = []
-    if sig.get("budget_met"):
-        out.append("Prices stayed within my target without much effort.")
-    if prof["is_strict_diet"] and sig.get("m_item"):
-        out.append("Diet labels aligned with my choice, so I felt confident adding it.")
-    if prof["has_allergen"] and (sig.get("m_item") or sig.get("m_cart")):
-        out.append("Allergen info was close enough to the add button to double-check quickly.")
-    if prof["acc_is_screenreader"]:
-        out.append("Key actions were labeled clearly for assistive tech.")
-    if prof["acc_is_largetext"]:
-        out.append("Text size/readability made scanning options fast.")
-    if prof["acc_is_colorblind"]:
-        out.append("Selected states didn’t rely only on color.")
-    if sig.get("m_cart") or sig.get("m_review") or sig.get("prechk_stop"):
-        out.append("I reached the cart/review screen with only a few steps.")
-    return [x for x in out if x]
-
-# ---------------------------
-# Agent loop
-# ---------------------------
+# ---------------- Agent loop ----------------
 async def exists_quick(page, sel: str) -> bool:
     try:
         return (await page.locator(sel).count()) > 0
@@ -485,7 +596,7 @@ async def soft_wait_for(page, sel: str, state: str = "visible", ms: int = 1200) 
     return False
 
 async def act_with_llm(page, persona: Dict[str, Any], *, agent_model: str, agent_temp: float,
-                       agent_top_p: float, dom_chars: int, use_history: bool, history_k: int,
+                       dom_chars: int, use_history: bool, history_k: int,
                        max_steps: int) -> Dict[str, Any]:
     history: List[Dict[str, Any]] = []
     step = 0
@@ -510,7 +621,7 @@ async def act_with_llm(page, persona: Dict[str, Any], *, agent_model: str, agent
         try:
             resp = await chat_create_safe(
                 agent_model, messages, want_json=True,
-                temperature=agent_temp, top_p=agent_top_p, max_tokens=220
+                temperature=agent_temp, max_tokens=220
             )
             raw = resp.choices[0].message.content
             cmd = json.loads(raw)
@@ -572,73 +683,96 @@ async def act_with_llm(page, persona: Dict[str, Any], *, agent_model: str, agent
             history.append({"info": "max-steps-reached", "step": step}); break
     return {"history": history}
 
-# ---------------------------
-# Signals & scoring
-# ---------------------------
-def collect_signals(history: List[Dict[str, Any]]) -> Dict[str, Any]:
-    errors = [h for h in history if "error" in h]
-    warns  = [h for h in history if "warn" in h]
-    timeouts = [h for h in warns if "timeout" in h.get("warn", "")]
-    steps = sum(1 for h in history if "action" in h)
-    waits = [h for h in history if h.get("action") in ("wait","wait_ms")]
-    long_waits = sum(1 for w in waits if int(w.get("ms", 0)) >= 1500)
+# ---------------- Suggestion machinery ----------------
+async def generate_axis_suggestions(persona: Dict[str, Any], axis: str, *,
+                                    model: str, temp: float,
+                                    need: int,
+                                    forbid_phrases: Set[str],
+                                    corpus_phrases: Set[str],
+                                    ngram_n: int = 4, thresh: float = 0.70) -> List[str]:
+    persona_line = digest_persona(persona)
+    forbidden = "\n".join(sorted(list(forbid_phrases))[:80])
 
-    notes = [h for h in history if h.get("action") == "note"]
-    severe_tags = {"diet_mismatch","allergen_missing","filter_missing","aria_missing","contrast_low","tiny_tap_target"}
-    severe_notes = [n for n in notes if (n.get("tag") in severe_tags)]
-    budget_met = any(n.get("tag") == "budget_met" for n in notes)
-    budget_over = any(n.get("tag") == "budget_over" for n in notes)
-    milestones = {n.get("tag") for n in notes if str(n.get("tag","")).startswith("milestone_")}
+    sys = ("You are a seasoned mobile UX researcher writing concise, concrete product suggestions. "
+           "Generate persona-tailored improvements that a designer can ship. Output STRICT JSON: "
+           "{\"suggestions\":[\"...\", \"...\"]}. No commentary.")
+    usr = (
+        f"Persona: {persona_line}\n"
+        f"Axis: {axis}\n"
+        "Write 15–20 unique suggestions (12–18 words each). Be concrete and human-centered:\n"
+        "- Prefer diet/allergen/accessibility/budget/navigation insights relevant to the axis.\n"
+        "- Avoid vague phrasing; avoid repeating ideas; each line should propose a distinct fix.\n"
+        "- Vary verbs and structure; sound like a person, not a template.\n"
+        "- Avoid phrases in FORBIDDEN and anything already used.\n\n"
+        "FORBIDDEN:\n" + forbidden + "\n"
+        "Return JSON only."
+    )
+    try:
+        resp = await chat_create_safe(
+            model,
+            [{"role":"system","content":sys},{"role":"user","content":usr}],
+            want_json=True,
+            temperature=temp,
+            max_tokens=700
+        )
+        obj = json.loads(resp.choices[0].message.content or "{}")
+        cand = obj.get("suggestions") or []
+        out: List[str] = []
+        for s in cand:
+            s = (str(s) or "").strip()
+            if not s: continue
+            nrm = normalize_line(s)
+            if not nrm: continue
+            if nrm in corpus_phrases or nrm in forbid_phrases:
+                continue
+            if any(combined_similar(s, x) for x in out):
+                continue
+            out.append(s)
+            if len(out) >= need: break
+        return out
+    except Exception:
+        return []
 
-    return {
-        "errors": len(errors), "warns": len(warns), "timeouts": len(timeouts),
-        "steps": steps, "long_waits": long_waits,
-        "notes_severe": len(severe_notes),
-        "budget_met": budget_met, "budget_over": budget_over,
-        "m_item": ("milestone_item_added" in milestones),
-        "m_cart": ("milestone_cart_open" in milestones),
-        "m_review": ("milestone_review" in milestones),
-        "prechk_stop": any(h.get("info") == "stop_precheckout" for h in history),
-    }
+def extract_section(md: str, header: str) -> str:
+    lines = md.splitlines()
+    out, on = [], False
+    for ln in lines:
+        if ln.strip().startswith("## "):
+            on = (ln.strip() == header)
+            continue
+        if on: out.append(ln)
+    return "\n".join(out).strip()
 
-def score_from_signals(sig: Dict[str, Any], rng: random.Random, weights: Optional[Dict[str, float]] = None) -> int:
-    reached = sig["m_review"] or sig.get("prechk_stop")
-    if reached and sig["notes_severe"] == 0 and sig["errors"] == 0 and sig["timeouts"] == 0 and sig["long_waits"] == 0 and (sig["budget_met"] or not sig["budget_over"]):
-        base = 5
-    elif reached:
-        base = 4
-    elif sig["m_cart"] and sig["m_item"]:
-        base = 4
-    elif sig["m_item"]:
-        base = 3
-    else:
-        base = 2 if (sig["errors"] or sig["steps"] > 25) else 3
+def extract_bullets(md: str, header: str) -> List[str]:
+    sec = extract_section(md, header)
+    out = []
+    for ln in sec.splitlines():
+        if ln.strip().startswith("- "):
+            out.append(ln.strip()[2:].strip())
+    return out
 
-    w = weights or {}
-    base += w.get("reached_review_bonus", 0) if reached else 0
-    base += w.get("w_severe", -1) * min(2, sig["notes_severe"])
-    base += w.get("w_timeout", -1) * sig["timeouts"]
-    base += w.get("w_longwait", -1) * sig["long_waits"]
-    base += w.get("w_budget_over", -1) * (1 if sig["budget_over"] else 0)
-    base += w.get("w_budget_met", 1) * (1 if sig["budget_met"] else 0)
-    jitter = rng.choice([0, 0, 0, +1])
-    base = max(1, min(5, base + jitter))
-    return int(base)
+def replace_section(md: str, header: str, new_body_lines: List[str]) -> str:
+    lines = md.splitlines()
+    res = []
+    i = 0
+    while i < len(lines):
+        if lines[i].strip() == header:
+            res.append(lines[i])
+            i += 1
+            while i < len(lines) and not lines[i].strip().startswith("## "):
+                i += 1
+            for nb in new_body_lines:
+                res.append(nb)
+            continue
+        res.append(lines[i]); i += 1
+    return "\n".join(res)
 
-def fallback_desc(p: Dict[str, Any]) -> str:
-    return (f"{p.get('age','?')}yo in {p.get('location','?')} "
-            f"({p.get('income','?')}; {p.get('diet','none')}/{p.get('accessibility','none')}); "
-            f"goal: {p.get('goal','n/a')}")
-
-# ---------------------------
-# Rewriting / de-dup helpers
-# ---------------------------
-def extract_bullets_all(md: str) -> Dict[str, List[str]]:
-    return {
-        "good": extract_bullets(md, "## What Worked Well"),
-        "minor": extract_bullets(md, "## Minor Friction"),
-        "imp": extract_bullets(md, "## Suggested Improvements"),
-    }
+def unique_lines(lines: List[str]) -> List[str]:
+    out: List[str] = []
+    for s in lines:
+        if not any(combined_similar(s, t) for t in out):
+            out.append(s)
+    return out
 
 def categorize_bullet(text: str) -> str:
     t = normalize_line(text)
@@ -646,7 +780,7 @@ def categorize_bullet(text: str) -> str:
         ("too_many_taps", ["too many taps","longer than expected","confirm choices"]),
         ("filter_discoverability", ["filter placement","find where to filter","controls felt buried"]),
         ("label_ambiguity", ["generic","wording","didnt convey"]),
-        ("loading_feedback", ["loading","feedback","applied","updated"]),
+        ("loading_feedback", ["loading","feedback","applied","updated","acknowledgment"]),
         ("stall", ["stall","pause","retrying"]),
         ("fee_transparency", ["fee","breakdown"]),
         ("upsell_pressure", ["upsell","add-on","add on","crowded"]),
@@ -656,7 +790,10 @@ def categorize_bullet(text: str) -> str:
         ("contrast_low", ["contrast","color alone"]),
         ("tap_target_small", ["tap target","mis-tap"]),
         ("budget_visibility", ["budget","cap results","under my target"]),
-        ("price_sorting", ["sorting by price","cheapest"])
+        ("price_sorting", ["sorting by price","cheapest"]),
+        ("info_density", ["dense","packed","many elements"]),
+        ("redundant_steps", ["repeat","repeated","same choice"]),
+        ("thumb_reach", ["thumb zone","near the top"])
     ]
     for cat, words in kw:
         if any(w in t for w in words):
@@ -672,44 +809,48 @@ def suggest_from_minor(minor_bullets: List[str], rng: random.Random, k: int = 2)
     out = []
     for c in cats:
         pool = SUGGESTION_POOLS.get(c) or SUGGESTION_POOLS["label_ambiguity"]
-        out.append(rng.choice(pool))
+        cand = [x for x in pool if not any(combined_similar(x, y) for y in out)]
+        if not cand: cand = pool
+        out.append(rng.choice(cand))
         if len(out) >= k: break
     if len(out) < k:
         all_cats = list(SUGGESTION_POOLS.keys()); rng.shuffle(all_cats)
         for c in all_cats:
             out.append(rng.choice(SUGGESTION_POOLS[c]))
             if len(out) >= k: break
-    return out[:k]
+    return unique_lines(out)[:k]
 
-def unique_bullets_with_global(existing: List[str], used_global: Set[str], desired: int, rng: random.Random,
-                               pools: Dict[str, List[str]]) -> List[str]:
+def candidate_axes(persona: dict) -> List[str]:
+    axes = []
+    diet = (persona.get("diet") or "none").lower()
+    if diet in SUGGESTIONS_AXIS: axes.append(diet)
+    acc = (persona.get("accessibility") or "none").lower()
+    if acc in SUGGESTIONS_AXIS: axes.append(acc)
+    axes.append("budget")
+    axes.append("nav")
+    return axes
+
+def persona_toned_positive(sig: Dict[str, Any], prof: Dict[str, Any]) -> List[str]:
     out = []
-    # 먼저 기존 문장에서 아직 안쓴 카테고리만 채택
-    for b in existing:
-        cat = categorize_bullet(b)
-        if cat not in used_global:
-            out.append(b); used_global.add(cat)
-        if len(out) >= desired: break
-    # 부족분은 비사용 카테고리에서 생성
-    if len(out) < desired:
-        unused = [c for c in pools.keys() if c not in used_global]
-        rng.shuffle(unused)
-        for cat in unused:
-            cand = rng.choice(pools[cat])
-            out.append(cand); used_global.add(cat)
-            if len(out) >= desired: break
-    # 그래도 모자라면 랜덤
-    if len(out) < desired:
-        cats = list(pools.keys()); rng.shuffle(cats)
-        for cat in cats:
-            out.append(rng.choice(pools[cat]))
-            if len(out) >= desired: break
-    return out[:desired]
+    if sig.get("budget_met"):
+        out.append("Prices stayed within my target without much effort.")
+    if prof["is_strict_diet"] and sig.get("m_item"):
+        out.append("Diet labels aligned with my choice, so I felt confident adding it.")
+    if prof["has_allergen"] and (sig.get("m_item") or sig.get("m_cart")):
+        out.append("Allergen info was close enough to the Add button to double-check quickly.")
+    if prof["acc_is_screenreader"]:
+        out.append("Key actions were labeled clearly for assistive tech.")
+    if prof["acc_is_largetext"]:
+        out.append("Text size and spacing made scanning options quick.")
+    if prof["acc_is_colorblind"]:
+        out.append("Selected states didn’t rely only on color.")
+    if sig.get("m_cart") or sig.get("m_review") or sig.get("prechk_stop"):
+        out.append("I reached the review step with only a few detours.")
+    return [x for x in out if x]
 
-async def rewrite_markdown_to_avoid(rewrite_model: str, rewrite_temp: float, top_p: float,
-                                    persona: Dict[str, Any], md: str, forbid: List[str],
-                                    presence_penalty: float, frequency_penalty: float) -> str:
-    forbid_list = "\n".join(f"- {p}" for p in forbid[:40])
+async def rewrite_markdown_to_avoid(rewrite_model: str, rewrite_temp: float,
+                                    persona: Dict[str, Any], md: str, forbid: List[str]) -> str:
+    forbid_list = "\n".join(f"- {p}" for p in forbid[:80])
     messages = [
         {"role": "system", "content": REWRITE_SYSTEM},
         {"role": "user", "content": f"PERSONA: {digest_persona(persona)}\n\nFORBIDDEN:\n{forbid_list}\n\nMARKDOWN TO REWRITE:\n{md}"}
@@ -717,28 +858,94 @@ async def rewrite_markdown_to_avoid(rewrite_model: str, rewrite_temp: float, top
     resp = await chat_create_safe(
         rewrite_model, messages,
         want_json=False,
-        temperature=rewrite_temp, top_p=top_p,
-        presence_penalty=presence_penalty, frequency_penalty=frequency_penalty,
+        temperature=rewrite_temp,
         max_tokens=420
     )
     return resp.choices[0].message.content.strip()
 
-# ---------------------------
-# Analysis & Save (with tracking)
-# ---------------------------
+async def choose_suggestions(persona: dict,
+                             used_global: Set[str],
+                             need: int,
+                             *,
+                             external_axis: Dict[str, List[str]],
+                             suggestions_model: str,
+                             suggestions_temp: float,
+                             suggestions_per_axis: int,
+                             forbid_phrases: Set[str],
+                             corpus_phrases: Set[str],
+                             ngram_n: int = 4,
+                             thresh: float = 0.70) -> List[str]:
+    order = candidate_axes(persona) + ["generic"]
+    rng = rng_for_persona(persona)
+    picked: List[str] = []
+
+    async def axis_pool(ax: str) -> List[str]:
+        base = list(SUGGESTIONS_AXIS.get(ax, [])) + list(external_axis.get(ax, []))
+        cleaned: List[str] = []
+        for s in base:
+            s = s.strip()
+            if not s: continue
+            nrm = normalize_line(s)
+            if not nrm or nrm in forbid_phrases or nrm in corpus_phrases:
+                continue
+            if any(combined_similar(s, t) for t in cleaned):
+                continue
+            cleaned.append(s)
+
+        if len(cleaned) < suggestions_per_axis:
+            need_more = suggestions_per_axis - len(cleaned)
+            dyn = await generate_axis_suggestions(
+                persona, ax, model=suggestions_model, temp=suggestions_temp,
+                need=need_more*3,
+                forbid_phrases=forbid_phrases|corpus_phrases,
+                corpus_phrases=corpus_phrases,
+                ngram_n=4, thresh=0.70
+            )
+            for s in dyn:
+                if any(combined_similar(s, t) for t in cleaned):
+                    continue
+                cleaned.append(s)
+                if len(cleaned) >= suggestions_per_axis:
+                    break
+        rng.shuffle(cleaned)
+        return cleaned
+
+    for ax in order:
+        pool = await axis_pool(ax)
+        for s in pool:
+            if any(combined_similar(s, u) for u in used_global):
+                continue
+            if any(combined_similar(s, u) for u in picked):
+                continue
+            picked.append(s)
+            if len(picked) >= need:
+                return picked
+
+    while len(picked) < need:
+        g = "Offer a clearer, mobile-first control for my constraint with concise labeling."
+        if not any(combined_similar(g, u) for u in used_global|set(picked)):
+            picked.append(g)
+        else:
+            picked.append(g + " Include brief examples on the first tap.")
+    return picked[:need]
+
+# ---------------- Analysis & write ----------------
 async def analyze_and_save(
     root: pathlib.Path, persona: Dict[str, Any], run: Dict[str, Any], pid: str,
-    *, analysis_model: str, analysis_temp: float, analysis_top_p: float,
-    presence_penalty: float, frequency_penalty: float,
+    *, analysis_model: str, analysis_temp: float,
     corpus_texts: List[str], corpus_phrases: Set[str], forbid_phrases: Set[str],
     used_minor_categories: Set[str], used_good_categories: Set[str],
     diversify_threshold: float, diversify_retries: int,
     unique_minor_global: bool, min_unique_minor: int,
-    rewrite_model: Optional[str], rewrite_temp: float, rewrite_top_p: float,
+    unique_sugg_global: bool, min_unique_sugg: int,
+    rewrite_model: Optional[str], rewrite_temp: float,
     ngram_n: int, score_weights: Optional[Dict[str, float]],
-    humanize: bool, humanize_intensity: int, score_bias: float
+    score_bias: float, humanize: bool,
+    used_suggestions_global: Set[str],
+    suggestions_axis_external: Dict[str, List[str]],
+    suggestions_model: str, suggestions_temp: float, suggestions_per_axis: int,
+    cooldown_max_per_phrase: int, cooldown_max_per_category: int
 ):
-    # 분석 호출
     try:
         analysis_resp = await chat_create_safe(
             analysis_model,
@@ -747,22 +954,22 @@ async def analyze_and_save(
                 {"role": "user",   "content": json.dumps({"persona": persona, **run}, ensure_ascii=False)}
             ],
             want_json=True,
-            temperature=analysis_temp, top_p=analysis_top_p,
-            presence_penalty=presence_penalty, frequency_penalty=frequency_penalty,
-            max_tokens=400
+            temperature=analysis_temp,
+            max_tokens=420
         )
         aobj = json.loads(analysis_resp.choices[0].message.content)
     except Exception:
         aobj = {}
 
     desc = aobj.get("description") if isinstance(aobj.get("description"), str) else None
-    if not desc: desc = fallback_desc(persona)
+    if not desc: desc = (f"{persona.get('age','?')}yo in {persona.get('location','?')} "
+                         f"({persona.get('income','?')}; {persona.get('diet','none')}/{persona.get('accessibility','none')}); "
+                         f"goal: {persona.get('goal','n/a')}")
 
     sig = collect_signals(run.get("history", []))
     rng = rng_for_persona(persona)
     prof = persona_profile(persona)
 
-    # 마크다운 없으면 페르소나 기반으로 생성
     md = aobj.get("markdown") if isinstance(aobj.get("markdown"), str) else None
     if not md:
         notes = [h for h in run.get("history", []) if h.get("action") == "note" and not str(h.get("tag","")).startswith("milestone_")]
@@ -775,12 +982,12 @@ async def analyze_and_save(
         positives = persona_toned_positive(sig, prof)
         while len(positives) < 2:
             positives.append(random.choice(POSITIVES_POOL))
-        positives = positives[:3]
+        positives = unique_lines(positives)[:3]
 
         frs = []
-        if prof["is_strict_diet"] and not any(n.get("tag")=="diet_mismatch" for n in notes):
+        if prof["is_strict_diet"]:
             frs.append("I wanted clearer vegan/vegetarian markers on list cards.")
-        if prof["has_allergen"] and not any(n.get("tag")=="allergen_missing" for n in notes):
+        if prof["has_allergen"]:
             frs.append("Allergen flags could appear earlier than deep in the details.")
         if prof["acc_is_screenreader"]:
             frs.append("Some filter chips didn’t sound distinct to screen readers.")
@@ -788,10 +995,9 @@ async def analyze_and_save(
             frs.append("A few labels felt dense for quick reading.")
         if prof["acc_is_colorblind"]:
             frs.append("A couple of states relied heavily on color to signal selection.")
-        if len(frs) < 2:
-            frs.extend([random.choice(MINOR_CATEGORY_POOLS["filter_discoverability"]),
-                        random.choice(MINOR_CATEGORY_POOLS["label_ambiguity"])])
-        frs = frs[:3]
+        while len(frs) < 2:
+            frs.append(random.choice(MINOR_CATEGORY_POOLS["label_ambiguity"]))
+        frs = unique_lines(frs)[:3]
 
         imps = suggest_from_minor(frs, rng, k=2)
 
@@ -808,64 +1014,99 @@ async def analyze_and_save(
             + "".join(f"- {x}\n" for x in imps)
         )
 
-    # 유사성 검사 + 리라이트(겹치면)
-    def too_similar(markdown: str) -> bool:
-        sim = sim_against_corpus(markdown, corpus_texts, n=ngram_n) if corpus_texts else 0.0
+    def too_similar(md_text: str) -> bool:
+        sim = sim_against_corpus(md_text, corpus_texts, n=ngram_n) if corpus_texts else 0.0
         overlap = 0
         for h in ["## What Worked Well","## Minor Friction","## Suggested Improvements"]:
-            for b in extract_bullets(markdown, h):
+            for b in extract_bullets(md_text, h):
                 nb = normalize_line(b)
                 if nb in corpus_phrases or nb in forbid_phrases:
                     overlap += 1
         return sim >= diversify_threshold or overlap >= 2
 
     tries = 0
-    while too_similar(md) and tries < diversify_retries:
-        forbid = list((corpus_phrases | forbid_phrases))[:60]
+    while too_similar(md) and tries < diversify_retries and rewrite_model:
+        forbid = list((corpus_phrases | forbid_phrases))[:80]
         md2 = await rewrite_markdown_to_avoid(
-            rewrite_model or analysis_model, rewrite_temp, rewrite_top_p,
-            persona, md, forbid,
-            presence_penalty, frequency_penalty
+            rewrite_model, rewrite_temp, persona, md, forbid
         )
         if md2 and not too_similar(md2):
             md = md2; break
         tries += 1
 
-    # Minor → Suggestion 매핑(최종)
-    current_mf = extract_bullets(md, "## Minor Friction")
-    new_imps = suggest_from_minor(current_mf, rng, k=2)
-    md = replace_section(md, "## Suggested Improvements", [f"- {x}" for x in new_imps])
+    # ---------- Intra-section de-dup & global uniqueness ----------
+    used_good_global  = _load_used_set(root, "_used_good.json")
+    used_minor_global = _load_used_set(root, "_used_minor.json")
+    used_sugg_global  = _load_used_set(root, "_used_sugg.json")
+    used_sugg_counts  = _load_used_counts(root, "_used_sugg_counts.json")
+    used_sugg_catcnt  = _load_used_counts(root, "_used_sugg_cat_counts.json")
 
-    # 글로벌 유니크: Minor, 그리고 긍정도 카테고리 분산(간단)
-    if unique_minor_global:
-        desired = max(1, min(3, min_unique_minor))
-        uniq_mf = unique_bullets_with_global(current_mf, used_minor_categories, desired, rng, MINOR_CATEGORY_POOLS)
-        md = replace_section(md, "## Minor Friction", ["- " + x for x in uniq_mf])
+    def bump_count(d: Dict[str,int], key: str):
+        d[key] = int(d.get(key, 0)) + 1
 
-    # 긍정도 중복 카테고리 축소(라이트)
-    goods = extract_bullets(md, "## What Worked Well")
-    if goods:
-        # 긍정 카테고리는 간단히 normalize해서 프레이즈 중복만 피함
-        filtered = []
-        for g in goods:
-            ng = normalize_line(g)
-            if ng not in used_good_categories:
-                filtered.append(g); used_good_categories.add(ng)
-        if filtered:
-            md = replace_section(md, "## What Worked Well", ["- " + x for x in filtered])
+    # What Worked Well
+    goods = unique_lines(extract_bullets(md, "## What Worked Well"))
+    filt_goods = []
+    for g in goods:
+        if not any(combined_similar(g, u) for u in used_good_global):
+            filt_goods.append(g)
+            used_good_global.add(g)
+    if filt_goods:
+        md = replace_section(md, "## What Worked Well", ["- " + x for x in filt_goods])
 
-    # 섹션 공백(정확히 1줄)
+    # Minor Friction
+    minors = unique_lines(extract_bullets(md, "## Minor Friction"))
+    unique_minors = []
+    for m in minors:
+        if not any(combined_similar(m, u) for u in used_minor_global):
+            unique_minors.append(m)
+            used_minor_global.add(m)
+    if unique_minors:
+        md = replace_section(md, "## Minor Friction", ["- " + x for x in unique_minors])
+
+    # Suggested Improvements with cooldown
+    imps = unique_lines(extract_bullets(md, "## Suggested Improvements"))
+    final_imps = []
+    for s in imps:
+        cat = categorize_bullet(s)
+        nrm = normalize_line(s)
+        over_phrase = used_sugg_counts.get(nrm, 0) >= cooldown_max_per_phrase
+        over_cat    = used_sugg_catcnt.get(cat, 0) >= cooldown_max_per_category
+        if any(combined_similar(s, u) for u in used_sugg_global) or over_phrase or over_cat:
+            continue
+        final_imps.append(s)
+        used_sugg_global.add(s)
+        bump_count(used_sugg_counts, nrm)
+        bump_count(used_sugg_catcnt, cat)
+
+    # 보충 필요 시 축 기반 선택
+    need_more = max(0, min_unique_sugg - len(final_imps))
+    if need_more > 0:
+        more = await choose_suggestions(
+            persona, used_sugg_global, need_more,
+            external_axis=suggestions_axis_external,
+            suggestions_model=suggestions_model,
+            suggestions_temp=suggestions_temp,
+            suggestions_per_axis=suggestions_per_axis,
+            forbid_phrases=forbid_phrases, corpus_phrases=corpus_phrases,
+            ngram_n=ngram_n, thresh=diversify_threshold
+        )
+        for s in more:
+            final_imps.append(s)
+            used_sugg_global.add(s)
+            bump_count(used_sugg_counts, normalize_line(s))
+            bump_count(used_sugg_catcnt, categorize_bullet(s))
+
+    if final_imps:
+        md = replace_section(md, "## Suggested Improvements", ["- " + x for x in final_imps])
+
     md = enforce_spacing_exact_one(md)
 
-    # (선택) 사람톤 약간 추가: contractions 등 — 요청시만 켬
-    if humanize:
-        md = md  # 필요시 humanize 로직 추가 가능; 현재는 간결성을 위해 정리만
-
-    # 점수 + bias
+    # ---------- Score ----------
     score_int = score_from_signals(sig, rng, weights=score_weights)
     score_int = max(1, min(5, int(round(score_int + (score_bias or 0.0)))))
 
-    # 저장
+    # ---------- Save ----------
     sess = root / pid
     sess.mkdir(parents=True, exist_ok=True)
     (sess / "issues.md").write_text(
@@ -884,15 +1125,18 @@ async def analyze_and_save(
             "signals": sig
         }, f, ensure_ascii=False, indent=2)
 
-    # 코퍼스 업데이트(다음 세션 중복 회피용)
     corpus_texts.append(md)
     for h in ["## What Worked Well","## Minor Friction","## Suggested Improvements"]:
         for b in extract_bullets(md, h):
             corpus_phrases.add(normalize_line(b))
 
-# ---------------------------
-# Baseline diff (optional)
-# ---------------------------
+    _save_used_set(root, "_used_good.json", used_good_global)
+    _save_used_set(root, "_used_minor.json", used_minor_global)
+    _save_used_set(root, "_used_sugg.json", used_sugg_global)
+    _save_used_counts(root, "_used_sugg_counts.json", used_sugg_counts)
+    _save_used_counts(root, "_used_sugg_cat_counts.json", used_sugg_catcnt)
+
+# ---------------- Baseline / corpus ----------------
 def load_baseline_issue(baseline_dir: pathlib.Path, pid: str) -> Optional[Dict[str, Any]]:
     f = baseline_dir / pid / "issues.json"
     if not f.exists(): return None
@@ -937,12 +1181,10 @@ def prime_corpus_from_dir(root: pathlib.Path) -> Tuple[List[str], Set[str]]:
             continue
     return texts, phrases
 
-# ---------------------------
-# Navigation + engine
-# ---------------------------
+# ---------------- Runner ----------------
 async def run_one(play, persona: Dict[str, Any], *,
                   engine: str, headful: bool,
-                  agent_model: str, agent_temp: float, agent_top_p: float,
+                  agent_model: str, agent_temp: float,
                   dom_chars: int, use_history: bool, history_k: int,
                   max_steps: int, goto_timeout_ms: int, retry_goto: int) -> Dict[str, Any]:
 
@@ -992,7 +1234,7 @@ async def run_one(play, persona: Dict[str, Any], *,
     try:
         result = await act_with_llm(
             page, persona,
-            agent_model=agent_model, agent_temp=agent_temp, agent_top_p=agent_top_p,
+            agent_model=agent_model, agent_temp=agent_temp,
             dom_chars=dom_chars, use_history=use_history, history_k=history_k,
             max_steps=max_steps
         )
@@ -1000,9 +1242,6 @@ async def run_one(play, persona: Dict[str, Any], *,
         await browser.close()
     return result
 
-# ---------------------------
-# Main
-# ---------------------------
 async def main(args):
     personas = json.load(open(args.personas, encoding="utf-8"))
     root     = pathlib.Path(args.output); root.mkdir(parents=True, exist_ok=True)
@@ -1028,6 +1267,26 @@ async def main(args):
         t, p = prime_corpus_from_dir(root)
         corpus_texts.extend(t); corpus_phrases |= p
 
+    # suggestions axis loader
+    def load_suggestions_file(path: Optional[str]) -> Dict[str, List[str]]:
+        if not path: return {}
+        fp = pathlib.Path(path)
+        if not fp.exists(): return {}
+        try:
+            data = json.loads(fp.read_text(encoding="utf-8"))
+            out: Dict[str, List[str]] = {}
+            for k, v in (data or {}).items():
+                key = (k or "").strip().lower()
+                if not key: continue
+                if isinstance(v, list):
+                    out[key] = [str(x).strip() for x in v if str(x).strip()]
+            return out
+        except Exception:
+            return {}
+
+    suggestions_axis_external = load_suggestions_file(args.suggestions_file)
+    used_suggestions_global: Set[str] = _load_used_set(root, "_used_suggestions.json")
+
     sem = asyncio.Semaphore(max(1, args.concurrency))
 
     async with async_playwright() as p:
@@ -1049,22 +1308,32 @@ async def main(args):
                 result = await run_one(
                     p, persona,
                     engine=args.engine, headful=args.headful,
-                    agent_model=args.agent_model, agent_temp=args.agent_temp, agent_top_p=args.agent_top_p,
+                    agent_model=args.agent_model, agent_temp=args.agent_temp,
                     dom_chars=args.dom_chars, use_history=args.use_history, history_k=args.history_k,
                     max_steps=args.max_steps, goto_timeout_ms=args.goto_timeout_ms, retry_goto=args.retry_goto
                 )
             await analyze_and_save(
                 root, persona, result, pid,
-                analysis_model=args.analysis_model, analysis_temp=args.analysis_temp, analysis_top_p=args.analysis_top_p,
-                presence_penalty=args.analysis_presence_penalty, frequency_penalty=args.analysis_frequency_penalty,
+                analysis_model=args.analysis_model, analysis_temp=args.analysis_temp,
                 corpus_texts=corpus_texts, corpus_phrases=corpus_phrases, forbid_phrases=forbid_from_file,
                 used_minor_categories=used_minor_categories, used_good_categories=used_good_categories,
                 diversify_threshold=args.diversify_threshold, diversify_retries=args.diversify_retries,
                 unique_minor_global=args.unique_minor_global, min_unique_minor=args.min_unique_minor,
-                rewrite_model=args.rewrite_model, rewrite_temp=args.rewrite_temp, rewrite_top_p=args.rewrite_top_p,
-                ngram_n=args.ngram_n, score_weights=(json.loads(args.score_weights) if args.score_weights else None),
-                humanize=args.humanize, humanize_intensity=args.humanize_intensity, score_bias=args.score_bias
+                unique_sugg_global=args.unique_suggestions_global, min_unique_sugg=args.min_unique_suggestions,
+                rewrite_model=args.rewrite_model, rewrite_temp=args.rewrite_temp,
+                ngram_n=args.ngram_n, score_weights=json.loads(args.score_weights) if args.score_weights else None,
+                score_bias=args.score_bias, humanize=args.humanize,
+                used_suggestions_global=used_suggestions_global,
+                suggestions_axis_external=suggestions_axis_external,
+                suggestions_model=args.suggestions_model,
+                suggestions_temp=args.suggestions_temp,
+                suggestions_per_axis=args.suggestions_per_axis,
+                cooldown_max_per_phrase=args.cooldown_max_per_phrase,
+                cooldown_max_per_category=args.cooldown_max_per_category
             )
+
+            # persist global suggestion set for resume-ability
+            _save_used_set(root, "_used_suggestions.json", used_suggestions_global)
 
             if baseline_dir and baseline_dir.exists():
                 cur_issue = json.loads((sess / "issues.json").read_text(encoding="utf-8"))
@@ -1081,54 +1350,61 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--personas", required=True)
     ap.add_argument("--output",   required=True)
-    # Engine / UI
+
     ap.add_argument("--engine", choices=["webkit","chromium","firefox"], default="webkit")
     ap.add_argument("--headful", action="store_true")
-    # Models
+
     ap.add_argument("--agent_model", default="gpt-5-mini")
     ap.add_argument("--analysis_model", default="gpt-5")
-    ap.add_argument("--rewrite_model", default=None)
-    # Temps
+    ap.add_argument("--rewrite_model", default="gpt-5-mini")
+
     ap.add_argument("--agent_temp", type=float, default=0.40)
     ap.add_argument("--analysis_temp", type=float, default=1.00)
-    ap.add_argument("--rewrite_temp", type=float, default=0.90)
-    # Sampling (gpt-5 계열이면 내부에서 자동 제거)
-    ap.add_argument("--agent_top_p", type=float, default=0.90)
-    ap.add_argument("--analysis_top_p", type=float, default=0.92)
-    ap.add_argument("--rewrite_top_p", type=float, default=0.95)
-    ap.add_argument("--analysis_presence_penalty", type=float, default=0.2)
-    ap.add_argument("--analysis_frequency_penalty", type=float, default=0.2)
-    # Prompt/token controls
+    ap.add_argument("--rewrite_temp", type=float, default=1.20)
+
     ap.add_argument("--use_history", action="store_true")
     ap.add_argument("--history_k", type=int, default=6)
     ap.add_argument("--dom_chars", type=int, default=3500)
     ap.add_argument("--max_steps", type=int, default=MAX_STEPS_DEFAULT)
-    # Stop markers & navigation
+
     ap.add_argument("--stop_markers", type=str, default="your cart,review order,review your order,cart subtotal,summary")
     ap.add_argument("--goto_timeout_ms", type=int, default=120000)
     ap.add_argument("--retry_goto", type=int, default=2)
-    # Baseline diff
+
     ap.add_argument("--baseline_dir", type=str, default=None)
     ap.add_argument("--overwrite", action="store_true")
-    # De-dup / diversify
+
     ap.add_argument("--dedupe_against_existing", action="store_true")
-    ap.add_argument("--diversify_threshold", type=float, default=0.78)
-    ap.add_argument("--diversify_retries", type=int, default=3)
-    ap.add_argument("--ngram_n", type=int, default=5)
-    # Global uniqueness
+    ap.add_argument("--diversify_threshold", type=float, default=0.72)
+    ap.add_argument("--diversify_retries", type=int, default=6)
+    ap.add_argument("--ngram_n", type=int, default=4)
+
     ap.add_argument("--unique_minor_global", action="store_true")
-    ap.add_argument("--min_unique_minor", type=int, default=2)
-    # External phrases
+    ap.add_argument("--min_unique_minor", type=int, default=3)
+    ap.add_argument("--unique_suggestions_global", action="store_true")
+    ap.add_argument("--min_unique_suggestions", type=int, default=2)
+
     ap.add_argument("--forbid_phrase_file", type=str, default=None)
-    # Scoring
+
     ap.add_argument("--score_weights", type=str, default='{"reached_review_bonus":0.5,"w_severe":-1,"w_timeout":-0.5,"w_longwait":-0.5,"w_budget_over":-0.5,"w_budget_met":0.5}')
-    ap.add_argument("--score_bias", type=float, default=0.4)  # 평균 3~4를 목표
-    # Human tone (light)
+    ap.add_argument("--score_bias", type=float, default=0.8)
     ap.add_argument("--humanize", action="store_true")
-    ap.add_argument("--humanize_intensity", type=int, default=1)
-    # Concurrency & seed
+
     ap.add_argument("--concurrency", type=int, default=2)
     ap.add_argument("--seed", type=int, default=None)
+
+    # axis suggestions
+    ap.add_argument("--suggestions_file", type=str, default=None,
+                    help="Axis suggestions JSON. keys like 'vegan','screen-reader','budget','nav','generic'")
+    ap.add_argument("--suggestions_model", type=str, default="gpt-5-mini")
+    ap.add_argument("--suggestions_per_axis", type=int, default=30)
+    ap.add_argument("--suggestions_temp", type=float, default=1.20)
+
+    # cooldowns
+    ap.add_argument("--cooldown_max_per_phrase", type=int, default=1,
+                    help="Same improvement phrase can appear at most N times globally before replacement.")
+    ap.add_argument("--cooldown_max_per_category", type=int, default=3,
+                    help="Same improvement category can appear at most N times globally before replacement.")
 
     args = ap.parse_args()
     GLOBAL_STOP_MARKERS[:] = [m.strip().lower() for m in args.stop_markers.split(",") if m.strip()]

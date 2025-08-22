@@ -113,66 +113,81 @@ python generate_personas.py --condition diverse --count 7
 python run_operators.py \
   --personas personas_uniform.json \
   --output runs/uniform \
-  --agent_model gpt-5-mini \
-  --analysis_model gpt-5 \
-  --rewrite_model gpt-5-mini --rewrite_temp 0.9 \
-  --agent_temp 0.40 \
-  --analysis_temp 1.0 \
+  --agent_model gpt-5-mini --analysis_model gpt-5 \
+  --rewrite_model gpt-5-mini --rewrite_temp 1.20 \
+  --agent_temp 0.40 --analysis_temp 1.0 \
   --dom_chars 3500 --use_history --history_k 6 \
   --dedupe_against_existing \
-  --unique_minor_global --min_unique_minor 2 \
-  --diversify_threshold 0.75 --diversify_retries 4 \
-  --ngram_n 5 \
+  --unique_minor_global --min_unique_minor 3 \
+  --unique_suggestions_global --min_unique_suggestions 2 \
+  --diversify_threshold 0.72 --diversify_retries 6 \
+  --ngram_n 4 \
+  --suggestions_file suggestions_axis.json \
+  --suggestions_model gpt-5-mini \
+  --suggestions_per_axis 30 \
+  --suggestions_temp 1.20 \
+  --cooldown_max_per_phrase 1 \
+  --cooldown_max_per_category 3 \
   --stop_markers "your cart,review order,review your order,cart subtotal,summary" \
   --goto_timeout_ms 120000 --retry_goto 2 \
   --concurrency 2 \
-  --score_bias 0.6 \
-  --humanize --humanize_intensity 1 \
-  --seed 101
+  --score_bias 0.8 \
+  --humanize \
+  --seed 901
 
 
 5) Run Diet-only<br>
 python run_operators.py \
   --personas personas_diet.json \
   --output runs/diet \
-  --agent_model gpt-5-mini \
-  --analysis_model gpt-5 \
-  --rewrite_model gpt-5-mini --rewrite_temp 0.9 \
-  --agent_temp 0.40 \
-  --analysis_temp 1.0 \
+  --agent_model gpt-5-mini --analysis_model gpt-5 \
+  --rewrite_model gpt-5-mini --rewrite_temp 1.20 \
+  --agent_temp 0.40 --analysis_temp 1.0 \
   --dom_chars 3500 --use_history --history_k 6 \
   --dedupe_against_existing \
-  --unique_minor_global --min_unique_minor 2 \
-  --diversify_threshold 0.75 --diversify_retries 4 \
-  --ngram_n 5 \
+  --unique_minor_global --min_unique_minor 3 \
+  --unique_suggestions_global --min_unique_suggestions 2 \
+  --diversify_threshold 0.72 --diversify_retries 6 \
+  --ngram_n 4 \
+  --suggestions_file suggestions_axis.json \
+  --suggestions_model gpt-5-mini \
+  --suggestions_per_axis 30 \
+  --suggestions_temp 1.20 \
+  --cooldown_max_per_phrase 1 \
+  --cooldown_max_per_category 3 \
   --stop_markers "your cart,review order,review your order,cart subtotal,summary" \
   --goto_timeout_ms 120000 --retry_goto 2 \
   --concurrency 2 \
-  --score_bias 0.6 \
-  --humanize --humanize_intensity 1 \
-  --seed 102
+  --score_bias 0.8 \
+  --humanize \
+  --seed 902
 
 
 6) Run Fully-diverse<br>
 python run_operators.py \
   --personas personas_diverse.json \
   --output runs/diverse \
-  --agent_model gpt-5-mini \
-  --analysis_model gpt-5 \
-  --rewrite_model gpt-5-mini --rewrite_temp 0.9 \
-  --agent_temp 0.40 \
-  --analysis_temp 1.0 \
+  --agent_model gpt-5-mini --analysis_model gpt-5 \
+  --rewrite_model gpt-5-mini --rewrite_temp 1.20 \
+  --agent_temp 0.40 --analysis_temp 1.0 \
   --dom_chars 3500 --use_history --history_k 6 \
   --dedupe_against_existing \
-  --unique_minor_global --min_unique_minor 2 \
-  --diversify_threshold 0.75 --diversify_retries 4 \
-  --ngram_n 5 \
+  --unique_minor_global --min_unique_minor 3 \
+  --unique_suggestions_global --min_unique_suggestions 2 \
+  --diversify_threshold 0.72 --diversify_retries 6 \
+  --ngram_n 4 \
+  --suggestions_file suggestions_axis.json \
+  --suggestions_model gpt-5-mini \
+  --suggestions_per_axis 30 \
+  --suggestions_temp 1.20 \
+  --cooldown_max_per_phrase 1 \
+  --cooldown_max_per_category 3 \
   --stop_markers "your cart,review order,review your order,cart subtotal,summary" \
   --goto_timeout_ms 120000 --retry_goto 2 \
   --concurrency 2 \
-  --score_bias 0.6 \
-  --humanize --humanize_intensity 1 \
-  --seed 103
+  --score_bias 0.8 \
+  --humanize \
+  --seed 903
 
 
 7) Merge PDF<br>
